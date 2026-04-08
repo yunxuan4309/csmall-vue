@@ -1,0 +1,83 @@
+import axios from 'axios'
+import { ElMessage } from 'element-plus'
+import router from '@/router'
+
+// ============ 创建实例工厂 ============
+
+/**
+ * 创建 Axios 实例
+ * @param {string} baseURL - 服务基础地址
+ */
+function createInstance(baseURL) {
+  const instance = axios.create({
+    baseURL,
+    timeout: 15000,
+    headers: { 'Content-Type': 'application/json' }
+  })
+
+  // ---- 请求拦截 ----
+  instance.interceptors.request.use(
+    config => {
+      const token = localStorage.getItem(import.meta.env.VITE_TOKEN_KEY)
+      if (token) {
+        config.headers.Authorization =
+          `${import.meta.env.VITE_TOKEN_PREFIX} ${token}`
+      }
+      return config
+    },
+    error => Promise.reject(error)
+  )
+
+  // ---- 响应拦截 ----
+  instance.interceptors.response.use(
+    response => {
+      const res = response.data
+
+      // 判断后端 JsonResult.state
+      if (res.state === 200) {
+        // 成功：返回完整响应，页面可以取 res.data
+        return res
+      }
+
+      // Token 过期或未认证
+      if (res.state === 401) {
+        localStorage.removeItem(import.meta.env.VITE_TOKEN_KEY)
+        // 避免登录页死循环
+        const currentPath = window.location.hash || window.location.pathname
+        if (!currentPath.includes('/admin/login') && !currentPath.includes('/login')) {
+          ElMessage.error('登录已过期，请重新登录')
+          router.push('/admin/login')
+        }
+        return Promise.reject(new Error(res.message || '未登录'))
+      }
+
+      // 其他业务错误（400/403/404/409/500）
+      ElMessage.error(res.message || '请求失败')
+      return Promise.reject(new Error(res.message || '请求失败'))
+    },
+    error => {
+      // HTTP 层面错误（网络断开、超时、跨域等）
+      const msg = error.response
+        ? `服务器错误 ${error.response.status}`
+        : error.message || '网络异常'
+      ElMessage.error(msg)
+      return Promise.reject(new Error(msg))
+    }
+  )
+
+  return instance
+}
+
+// ============ 导出各服务实例 ============
+
+// SSO 服务（登录相关，端口 10002）
+export const ssoHttp = createInstance(import.meta.env.VITE_API_SSO)
+
+// 网关（其他业务请求统一走网关）
+export const gatewayHttp = createInstance(import.meta.env.VITE_API_GATEWAY)
+
+// UMS 服务（用户管理服务）
+export const umsHttp = createInstance(import.meta.env.VITE_API_UMS)
+
+// 默认导出（给不需要区分服务的场景）
+export default gatewayHttp
