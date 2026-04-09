@@ -6,46 +6,36 @@
         <p>欢迎回来</p>
       </div>
       
-      <el-form
+      <nut-form
         ref="loginFormRef"
-        :model="loginForm"
-        :rules="loginRules"
+        :model-value="loginForm"
         class="login-form"
       >
-        <el-form-item prop="username">
-          <el-input
+        <nut-form-item label="用户名" required>
+          <nut-input
             v-model="loginForm.username"
             placeholder="请输入用户名"
-            size="large"
-            :prefix-icon="User"
             clearable
           />
-        </el-form-item>
+        </nut-form-item>
         
-        <el-form-item prop="password">
-          <el-input
+        <nut-form-item label="密码" required>
+          <nut-input
             v-model="loginForm.password"
             type="password"
             placeholder="请输入密码"
-            size="large"
-            :prefix-icon="Lock"
-            show-password
           />
-        </el-form-item>
+        </nut-form-item>
         
-        <el-form-item>
-          <el-button
-            type="primary"
-            size="large"
-            class="login-button"
-          >
+        <div class="login-button-wrapper">
+          <nut-button type="primary" block size="large" @click="handleLogin">
             登 录
-          </el-button>
-        </el-form-item>
-      </el-form>
+          </nut-button>
+        </div>
+      </nut-form>
       
       <div class="login-footer">
-        <el-text size="small">还没有账号？</el-text>
+        <span class="footer-text">还没有账号？</span>
         <router-link to="/register">立即注册</router-link>
       </div>
     </div>
@@ -54,8 +44,10 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
-import { User, Lock } from '@element-plus/icons-vue'
+import { useRouter } from 'vue-router'
+import { showToast } from '@nutui/nutui'
 
+const router = useRouter()
 const loginFormRef = ref(null)
 
 const loginForm = reactive({
@@ -63,13 +55,24 @@ const loginForm = reactive({
   password: ''
 })
 
-const loginRules = {
-  username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' }
-  ],
-  password: [
-    { required: true, message: '请输入密码', trigger: 'blur' }
-  ]
+const handleLogin = async () => {
+  // 简单验证
+  if (!loginForm.username) {
+    showToast({ message: '请输入用户名', type: 'warning' })
+    return
+  }
+  if (!loginForm.password) {
+    showToast({ message: '请输入密码', type: 'warning' })
+    return
+  }
+  
+  // TODO: 调用登录 API
+  showToast({ message: '登录功能开发中...', type: 'success' })
+  
+  // 示例：登录成功后跳转
+  // setTimeout(() => {
+  //   router.push('/home')
+  // }, 1500)
 }
 </script>
 
@@ -80,13 +83,15 @@ const loginRules = {
   justify-content: center;
   align-items: center;
   background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  padding: 20px;
 }
 
 .login-box {
-  width: 420px;
-  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  padding: 30px 20px;
   background: white;
-  border-radius: 10px;
+  border-radius: 16px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
 }
 
@@ -96,9 +101,10 @@ const loginRules = {
 }
 
 .login-header h2 {
-  font-size: 28px;
+  font-size: 26px;
   color: #333;
-  margin: 0 0 10px 0;
+  margin: 0 0 8px 0;
+  font-weight: 600;
 }
 
 .login-header p {
@@ -108,13 +114,12 @@ const loginRules = {
 }
 
 .login-form {
-  margin-top: 30px;
+  margin-top: 20px;
 }
 
-.login-button {
-  width: 100%;
-  font-size: 16px;
-  font-weight: 500;
+.login-button-wrapper {
+  margin-top: 30px;
+  padding: 0 10px;
 }
 
 .login-footer {
@@ -124,10 +129,17 @@ const loginRules = {
   border-top: 1px solid #eee;
 }
 
+.footer-text {
+  font-size: 14px;
+  color: #666;
+}
+
 .login-footer a {
-  color: #409eff;
+  color: #fa2c19;
   margin-left: 5px;
   text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .login-footer a:hover {

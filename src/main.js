@@ -3,6 +3,9 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
+// 引入 NutUI
+import NutUI from '@nutui/nutui'
+import '@nutui/nutui/dist/style.css'
 import pinia from './store'
 import router from './router'
 import './style.css'
@@ -25,5 +28,8 @@ app.use(router)
 app.use(ElementPlus, {
   locale: zhCn,
 })
+
+// 使用 NutUI（移动端组件库）
+app.use(NutUI)
 
 app.mount('#app')
