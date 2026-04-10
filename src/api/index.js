@@ -1,5 +1,5 @@
 // HTTP 请求实例
-export { default, ssoHttp, gatewayHttp, umsHttp } from './request'
+export { default, ssoHttp, gatewayHttp, umsHttp, frontHttp, seckillHttp } from './request'
 
 // SSO 认证相关
 export * from './sso'

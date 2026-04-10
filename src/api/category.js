@@ -1,7 +1,15 @@
-import gatewayHttp from './request'
+import { frontHttp, gatewayHttp } from './request'
 
 /**
- * 获取分类列表
+ * 获取前台分类树（递归结构）
+ * @returns {Promise} 返回 { categories: [] }
+ */
+export function getFrontCategoryTree() {
+  return frontHttp.get('/front/category/all')
+}
+
+/**
+ * 获取分类列表（后台管理用）
  * @param {number} parentId - 父分类ID，默认0表示根分类
  * @returns {Promise}
  */

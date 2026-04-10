@@ -76,8 +76,14 @@ export const ssoHttp = createInstance(import.meta.env.VITE_API_SSO)
 // 网关（其他业务请求统一走网关）
 export const gatewayHttp = createInstance(import.meta.env.VITE_API_GATEWAY)
 
-// UMS 服务（用户管理服务）
+// UMS 服务（用户管理服务，端口 10006）
 export const umsHttp = createInstance(import.meta.env.VITE_API_UMS)
+
+// Front 服务（前台商品展示，端口 10004）
+export const frontHttp = createInstance(import.meta.env.VITE_API_FRONT)
+
+// Seckill 服务（秒杀服务，端口 10007）
+export const seckillHttp = createInstance(import.meta.env.VITE_API_SECKILL)
 
 // 默认导出（给不需要区分服务的场景）
 export default gatewayHttp

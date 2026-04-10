@@ -1,8 +1,46 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '@/store/user'
+import { useFrontUserStore } from '@/store/frontUser'
 
 const routes = [
   // 前台路由
+  {
+    path: '/',
+    component: () => import('@/views/front/layout/FrontLayout.vue'),
+    redirect: '/products',
+    children: [
+      {
+        path: 'products',
+        name: 'ProductList',
+        component: () => import('@/views/front/product/ProductList.vue'),
+        meta: { title: '商品列表' }
+      },
+      {
+        path: 'product/:id',
+        name: 'ProductDetail',
+        component: () => import('@/views/front/product/ProductDetail.vue'),
+        meta: { title: '商品详情' }
+      },
+      {
+        path: 'seckill',
+        name: 'SeckillList',
+        component: () => import('@/views/front/seckill/SeckillList.vue'),
+        meta: { title: '秒杀专区' }
+      },
+      {
+        path: 'seckill/:id',
+        name: 'SeckillDetail',
+        component: () => import('@/views/front/seckill/SeckillDetail.vue'),
+        meta: { title: '秒杀详情' }
+      },
+      {
+        path: 'user/profile',
+        name: 'UserProfile',
+        component: () => import('@/views/front/user/UserProfile.vue'),
+        meta: { title: '个人中心', requiresAuth: true }
+      }
+    ]
+  },
   {
     path: '/login',
     name: 'FrontLogin',
@@ -79,10 +117,10 @@ const routes = [
     ]
   },
   
-  // 默认重定向
+  // 默认重定向到前台商品列表
   {
-    path: '/',
-    redirect: '/admin/login'
+    path: '/:pathMatch(.*)*',
+    redirect: '/'
   }
 ]
 
@@ -94,19 +132,26 @@ const router = createRouter({
 // 路由守卫
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
+  const frontUserStore = useFrontUserStore()
   
   // 设置页面标题
-  document.title = to.meta.title ? `${to.meta.title} - Mall Admin` : 'Mall Admin'
+  document.title = to.meta.title ? `${to.meta.title} - Mall` : 'Mall'
   
-  // 判断是否需要登录
-  const requiresAuth = to.path.startsWith('/admin') && to.path !== '/admin/login'
+  // 判断是否需要登录（后台管理）
+  const requiresAdminAuth = to.path.startsWith('/admin') && to.path !== '/admin/login'
   
-  if (requiresAuth && !userStore.token) {
-    // 未登录，跳转到登录页
+  // 判断是否需要登录（前台）
+  const requiresFrontAuth = to.meta.requiresAuth === true
+  
+  if (requiresAdminAuth && !userStore.token) {
+    // 后台未登录，跳转到登录页
     next('/admin/login')
   } else if (to.path === '/admin/login' && userStore.token) {
-    // 已登录，跳转到首页
+    // 后台已登录，跳转到首页
     next('/admin/dashboard')
+  } else if (requiresFrontAuth && !frontUserStore.token) {
+    // 前台需要登录但未登录
+    next('/login')
   } else {
     next()
   }

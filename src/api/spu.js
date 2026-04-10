@@ -1,4 +1,54 @@
-import gatewayHttp from './request'
+import { frontHttp, gatewayHttp } from './request'
+
+// ==================== 前台商品接口 ====================
+
+/**
+ * 获取前台分类商品列表（分页）
+ * @param {number} categoryId - 分类ID
+ * @param {Object} params - 查询参数 { page, pageSize }
+ * @returns {Promise} 返回分页数据
+ */
+export function getFrontSpuList(categoryId, params) {
+  return frontHttp.get(`/front/spu/list/${categoryId}`, { params })
+}
+
+/**
+ * 获取前台商品详情
+ * @param {number} spuId - SPU ID
+ * @returns {Promise}
+ */
+export function getFrontSpuDetail(spuId) {
+  return frontHttp.get(`/front/spu/${spuId}`)
+}
+
+/**
+ * 获取前台商品详情页（富文本）
+ * @param {number} spuId - SPU ID
+ * @returns {Promise}
+ */
+export function getFrontSpuPageDetail(spuId) {
+  return frontHttp.get(`/front/spu/detail/${spuId}`)
+}
+
+/**
+ * 获取前台商品SKU列表
+ * @param {number} spuId - SPU ID
+ * @returns {Promise}
+ */
+export function getFrontSkuList(spuId) {
+  return frontHttp.get(`/front/sku/${spuId}`)
+}
+
+/**
+ * 获取前台商品属性模板
+ * @param {number} spuId - SPU ID
+ * @returns {Promise}
+ */
+export function getFrontAttributeTemplate(spuId) {
+  return frontHttp.get(`/front/spu/template/${spuId}`)
+}
+
+// ==================== 后台管理商品接口 ====================
 
 /**
  * 获取 SPU 列表（分页）

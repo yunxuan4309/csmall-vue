@@ -83,6 +83,16 @@
         </div>
         
         <div class="header-right">
+          <!-- 回到商品页面按钮 -->
+          <el-button 
+            type="success" 
+            size="small"
+            @click="goToFrontend"
+          >
+            <el-icon><Shop /></el-icon>
+            回到商品页面
+          </el-button>
+          
           <el-dropdown @command="handleCommand">
             <span class="user-info">
               <el-avatar :size="32" :icon="UserFilled" />
@@ -133,7 +143,8 @@ import {
   Fold,
   Expand,
   UserFilled,
-  SwitchButton
+  SwitchButton,
+  Shop
 } from '@element-plus/icons-vue'
 
 const route = useRoute()
@@ -157,6 +168,11 @@ const breadcrumbs = computed(() => {
 // 切换侧边栏折叠状态
 const toggleCollapse = () => {
   isCollapse.value = !isCollapse.value
+}
+
+// 回到前台商品页面
+const goToFrontend = () => {
+  window.open('/', '_blank')
 }
 
 // 处理下拉菜单命令
@@ -245,6 +261,7 @@ const handleCommand = (command) => {
 .header-right {
   display: flex;
   align-items: center;
+  gap: 15px;
 }
 
 .user-info {
