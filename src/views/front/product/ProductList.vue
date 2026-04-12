@@ -125,32 +125,32 @@ const fetchCategoryTree = async () => {
     const res = await getFrontCategoryTree()
     categoryTree.value = res.data.categories || []
     
-    console.log('📂 分类树数据:', categoryTree.value)
+    // console.log('📂 分类树数据:', categoryTree.value)
     
     // 打印服装鞋帽分类的详细信息
-    const clothingCategory = categoryTree.value.find(cat => cat.id === 3)
-    if (clothingCategory) {
-      console.log('👔 服装鞋帽分类详情:', clothingCategory)
-      console.log('👔 子分类列表:', clothingCategory.childrens)
-    }
+    // const clothingCategory = categoryTree.value.find(cat => cat.id === 3)
+    // if (clothingCategory) {
+    //   console.log('👔 服装鞋帽分类详情:', clothingCategory)
+    //   console.log('👔 子分类列表:', clothingCategory.childrens)
+    // }
     
     // 如果路由中有 categoryId，优先使用路由参数
     if (route.query.categoryId) {
       const targetCategoryId = parseInt(route.query.categoryId)
-      console.log('🎯 路由参数指定的分类ID:', targetCategoryId)
+      // console.log('🎯 路由参数指定的分类ID:', targetCategoryId)
       
       // 在分类树中查找该分类的完整路径
       const categoryPath = findCategoryPathById(categoryTree.value, targetCategoryId)
       if (categoryPath) {
         selectedCategory.value = categoryPath
-        console.log('✅ 找到分类路径:', categoryPath)
+        // console.log('✅ 找到分类路径:', categoryPath)
         await fetchProductList()
       } else {
         console.warn('⚠️ 未找到分类ID对应的路径:', targetCategoryId)
       }
     } else {
       // 默认不自动选择分类，让用户自己选择
-      console.log('ℹ️ 无路由参数，等待用户选择分类')
+      // console.log('ℹ️ 无路由参数，等待用户选择分类')
     }
   } catch (error) {
     console.error('获取分类树失败:', error)
@@ -224,22 +224,22 @@ const fetchProductList = async () => {
     // 如果选择了分类，按分类查询；否则查询所有商品
     if (selectedCategory.value && selectedCategory.value.length > 0) {
       const categoryId = selectedCategory.value[selectedCategory.value.length - 1]
-      console.log('🔍 当前选择的分类路径:', selectedCategory.value)
-      console.log('🔍 最终使用的分类ID:', categoryId)
+      // console.log('🔍 当前选择的分类路径:', selectedCategory.value)
+      // console.log('🔍 最终使用的分类ID:', categoryId)
       
       res = await getFrontSpuList(categoryId, {
         page: page.value,
         pageSize: pageSize.value
       })
       
-      console.log('✅ 获取到的商品数量:', res.data.list?.length || 0)
-      if (res.data.list && res.data.list.length > 0) {
-        console.log('📦 第一个商品的完整数据:', res.data.list[0])
-        console.log('📦 所有字段名:', Object.keys(res.data.list[0]))
-      }
+      // console.log('✅ 获取到的商品数量:', res.data.list?.length || 0)
+      // if (res.data.list && res.data.list.length > 0) {
+      //   console.log('📦 第一个商品的完整数据:', res.data.list[0])
+      //   console.log('📦 所有字段名:', Object.keys(res.data.list[0]))
+      // }
       
       // 打印完整的响应数据结构
-      console.log('🔍 完整响应数据:', res.data)
+      // console.log('🔍 完整响应数据:', res.data)
     } else {
       // TODO: 这里需要后端提供一个获取所有商品的接口
       // 暂时使用第一个分类或者显示提示
@@ -269,8 +269,8 @@ const clearCategory = () => {
 
 // 分类变化
 const handleCategoryChange = (value) => {
-  console.log('👆 分类选择器变化 - 原始值:', value)
-  console.log('👆 分类选择器变化 - 类型:', Array.isArray(value) ? 'Array' : typeof value)
+  // console.log('👆 分类选择器变化 - 原始值:', value)
+  // console.log('👆 分类选择器变化 - 类型:', Array.isArray(value) ? 'Array' : typeof value)
   
   // 确保 value 是数组
   if (!Array.isArray(value)) {
