@@ -6,78 +6,85 @@
         <p>创建新账号</p>
       </div>
       
-      <nut-form
+      <el-form
         ref="registerFormRef"
-        :model-value="registerForm"
+        :model="registerForm"
+        :rules="registerRules"
         class="register-form"
+        size="large"
+        label-width="80px"
       >
-        <nut-form-item label="用户名" required>
-          <nut-input
+        <el-form-item label="用户名" prop="username">
+          <el-input
             v-model="registerForm.username"
             placeholder="4~16位字母数字，首字符为字母"
             clearable
             @blur="checkUsername"
           />
-        </nut-form-item>
+        </el-form-item>
         
-        <nut-form-item label="昵称" required>
-          <nut-input
+        <el-form-item label="昵称" prop="nickname">
+          <el-input
             v-model="registerForm.nickname"
             placeholder="2~16个字符"
             clearable
           />
-        </nut-form-item>
+        </el-form-item>
         
-        <nut-form-item label="密码" required>
-          <nut-input
+        <el-form-item label="密码" prop="password">
+          <el-input
             v-model="registerForm.password"
             type="password"
             placeholder="4~16位可打印ASCII字符"
+            show-password
           />
-        </nut-form-item>
+        </el-form-item>
         
-        <nut-form-item label="确认密码" required>
-          <nut-input
+        <el-form-item label="确认密码" prop="ackPassword">
+          <el-input
             v-model="registerForm.ackPassword"
             type="password"
             placeholder="请再次输入密码"
+            show-password
           />
-        </nut-form-item>
+        </el-form-item>
         
-        <nut-form-item label="邮箱" required>
-          <nut-input
+        <el-form-item label="邮箱" prop="email">
+          <el-input
             v-model="registerForm.email"
             placeholder="请输入邮箱地址"
             clearable
             @blur="checkEmail"
           />
-        </nut-form-item>
+        </el-form-item>
         
-        <nut-form-item label="手机号" required>
-          <nut-input
+        <el-form-item label="手机号" prop="phone">
+          <el-input
             v-model="registerForm.phone"
             placeholder="请输入11位手机号"
             clearable
             @blur="checkPhone"
           />
-        </nut-form-item>
+        </el-form-item>
         
-        <div class="register-button-wrapper">
-          <nut-button 
-            type="primary" 
-            block 
-            size="large" 
+        <el-form-item>
+          <el-button
+            type="primary"
+            size="large"
             :loading="loading"
+            class="register-button"
             @click="handleRegister"
           >
             {{ loading ? '注册中...' : '注 册' }}
-          </nut-button>
-        </div>
-      </nut-form>
+          </el-button>
+        </el-form-item>
+      </el-form>
       
       <div class="register-footer">
         <span class="footer-text">已有账号？</span>
-        <router-link to="/login">立即登录</router-link>
+        <router-link to="/user/login">立即登录</router-link>
+        <span class="divider">|</span>
+        <router-link to="/login" class="back-link">返回选择</router-link>
       </div>
     </div>
   </div>
@@ -86,7 +93,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { showToast } from '@nutui/nutui'
+import { ElMessage } from 'element-plus'
 import { checkValue, userRegister } from '@/api/user'
 import { 
   REGEX_USERNAME, 
@@ -110,6 +117,43 @@ const registerForm = reactive({
   phone: ''
 })
 
+// 表单验证规则
+const validateAckPassword = (rule, value, callback) => {
+  if (value === '') {
+    callback(new Error('请再次输入密码'))
+  } else if (value !== registerForm.password) {
+    callback(new Error('两次输入的密码不一致'))
+  } else {
+    callback()
+  }
+}
+
+const registerRules = {
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { pattern: REGEX_USERNAME, message: '用户名格式不正确（4~16位字母数字，首字符为字母）', trigger: 'blur' }
+  ],
+  nickname: [
+    { required: true, message: '请输入昵称', trigger: 'blur' },
+    { pattern: REGEX_NICKNAME, message: '昵称长度不正确（2~16个字符）', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { pattern: REGEX_PASSWORD, message: '密码格式不正确（4~16位可打印ASCII字符）', trigger: 'blur' }
+  ],
+  ackPassword: [
+    { required: true, validator: validateAckPassword, trigger: 'blur' }
+  ],
+  email: [
+    { required: true, message: '请输入邮箱', trigger: 'blur' },
+    { pattern: REGEX_EMAIL, message: '邮箱格式不正确', trigger: 'blur' }
+  ],
+  phone: [
+    { required: true, message: '请输入手机号', trigger: 'blur' },
+    { pattern: REGEX_PHONE, message: '手机号格式不正确', trigger: 'blur' }
+  ]
+}
+
 // 检查用户名是否重复
 const checkUsername = async () => {
   if (!registerForm.username || !REGEX_USERNAME.test(registerForm.username)) {
@@ -118,9 +162,9 @@ const checkUsername = async () => {
   
   try {
     await checkValue(registerForm.username, CHECK_TYPE.USERNAME)
-    showToast({ message: '用户名可用', type: 'success' })
+    ElMessage.success('用户名可用')
   } catch (error) {
-    showToast({ message: error.message || '该用户名已被注册', type: 'danger' })
+    ElMessage.error(error.message || '该用户名已被注册')
   }
 }
 
@@ -132,9 +176,9 @@ const checkEmail = async () => {
   
   try {
     await checkValue(registerForm.email, CHECK_TYPE.EMAIL)
-    showToast({ message: '邮箱可用', type: 'success' })
+    ElMessage.success('邮箱可用')
   } catch (error) {
-    showToast({ message: error.message || '该邮箱已被注册', type: 'danger' })
+    ElMessage.error(error.message || '该邮箱已被注册')
   }
 }
 
@@ -146,95 +190,44 @@ const checkPhone = async () => {
   
   try {
     await checkValue(registerForm.phone, CHECK_TYPE.PHONE)
-    showToast({ message: '手机号可用', type: 'success' })
+    ElMessage.success('手机号可用')
   } catch (error) {
-    showToast({ message: error.message || '该手机号已被注册', type: 'danger' })
+    ElMessage.error(error.message || '该手机号已被注册')
   }
-}
-
-// 表单验证
-const validateForm = () => {
-  if (!registerForm.username) {
-    showToast({ message: '请输入用户名', type: 'warning' })
-    return false
-  }
-  if (!REGEX_USERNAME.test(registerForm.username)) {
-    showToast({ message: '用户名格式不正确', type: 'warning' })
-    return false
-  }
-  if (!registerForm.nickname) {
-    showToast({ message: '请输入昵称', type: 'warning' })
-    return false
-  }
-  if (!REGEX_NICKNAME.test(registerForm.nickname)) {
-    showToast({ message: '昵称长度不正确', type: 'warning' })
-    return false
-  }
-  if (!registerForm.password) {
-    showToast({ message: '请输入密码', type: 'warning' })
-    return false
-  }
-  if (!REGEX_PASSWORD.test(registerForm.password)) {
-    showToast({ message: '密码格式不正确', type: 'warning' })
-    return false
-  }
-  if (!registerForm.ackPassword) {
-    showToast({ message: '请确认密码', type: 'warning' })
-    return false
-  }
-  if (registerForm.password !== registerForm.ackPassword) {
-    showToast({ message: '两次输入的密码不一致', type: 'warning' })
-    return false
-  }
-  if (!registerForm.email) {
-    showToast({ message: '请输入邮箱', type: 'warning' })
-    return false
-  }
-  if (!REGEX_EMAIL.test(registerForm.email)) {
-    showToast({ message: '邮箱格式不正确', type: 'warning' })
-    return false
-  }
-  if (!registerForm.phone) {
-    showToast({ message: '请输入手机号', type: 'warning' })
-    return false
-  }
-  if (!REGEX_PHONE.test(registerForm.phone)) {
-    showToast({ message: '手机号格式不正确', type: 'warning' })
-    return false
-  }
-  return true
 }
 
 // 处理注册
 const handleRegister = async () => {
-  if (!validateForm()) {
-    return
-  }
+  if (!registerFormRef.value) return
   
-  loading.value = true
-  
-  try {
-    await userRegister({
-      username: registerForm.username,
-      nickname: registerForm.nickname,
-      password: registerForm.password,
-      ackPassword: registerForm.ackPassword,
-      email: registerForm.email,
-      phone: registerForm.phone
-    })
-    
-    showToast({ message: '注册成功！请登录', type: 'success' })
-    
-    // 跳转到登录页
-    setTimeout(() => {
-      router.push('/login')
-    }, 1500)
-  } catch (error) {
-    console.error('注册失败:', error)
-    // 错误消息已在拦截器中显示
-  } finally {
-    loading.value = false
-  }
+  await registerFormRef.value.validate(async (valid) => {
+    if (valid) {
+      loading.value = true
+      
+      try {
+        await userRegister({
+          username: registerForm.username,
+          nickname: registerForm.nickname,
+          password: registerForm.password,
+          ackPassword: registerForm.ackPassword,
+          email: registerForm.email,
+          phone: registerForm.phone
+        })
+        
+        ElMessage.success('注册成功！请登录')
+        
+        // 跳转到登录页
+        setTimeout(() => {
+          router.push('/user/login')
+        }, 1500)
+      } catch (error) {
+        console.error('注册失败:', error)
+        // 错误消息已在拦截器中显示
+      } finally {
+        loading.value = false
+      }
+    }
+  })
 }
 </script>
 
@@ -276,12 +269,13 @@ const handleRegister = async () => {
 }
 
 .register-form {
-  margin-top: 20px;
+  margin-top: 30px;
 }
 
-.register-button-wrapper {
-  margin-top: 25px;
-  padding: 0 10px;
+.register-button {
+  width: 100%;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .register-footer {
@@ -305,6 +299,23 @@ const handleRegister = async () => {
 }
 
 .register-footer a:hover {
+  text-decoration: underline;
+}
+
+.divider {
+  margin: 0 10px;
+  color: #ddd;
+}
+
+.back-link {
+  color: #409eff;
+  margin-left: 5px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.back-link:hover {
   text-decoration: underline;
 }
 </style>

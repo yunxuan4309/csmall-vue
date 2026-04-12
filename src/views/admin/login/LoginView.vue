@@ -49,6 +49,9 @@
       
       <div class="login-footer">
         <el-text size="small">测试账号: root / 123456</el-text>
+        <div style="margin-top: 10px">
+          <router-link to="/login" class="back-link">返回登录选择</router-link>
+        </div>
       </div>
     </div>
   </div>
@@ -153,5 +156,16 @@ const handleLogin = async () => {
   margin-top: 20px;
   padding-top: 20px;
   border-top: 1px solid #eee;
+}
+
+.back-link {
+  color: #409eff;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.back-link:hover {
+  text-decoration: underline;
 }
 </style>

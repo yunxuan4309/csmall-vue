@@ -13,7 +13,14 @@ export const useFrontUserStore = defineStore('frontUser', () => {
    */
   const login = async (username, password) => {
     try {
+      console.log('=== 登录请求调试 ===')
+      console.log('用户名:', username)
+      console.log('密码:', password)
+      console.log('请求地址:', import.meta.env.VITE_API_SSO + '/user/sso/login')
+      
       const res = await userLogin(username, password)
+      
+      console.log('登录响应:', res)
       
       // 保存 Token（格式：Bearer tokenValue）
       const fullToken = `${res.data.tokenHeader} ${res.data.tokenValue}`
@@ -59,6 +66,7 @@ export const useFrontUserStore = defineStore('frontUser', () => {
       localStorage.removeItem('mall_token')
       
       ElMessage.success('已退出登录')
+      // 跳转到统一登录选择页面
       router.push('/login')
     }
   }

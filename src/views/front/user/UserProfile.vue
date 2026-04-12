@@ -61,8 +61,12 @@ const fetchUserInfo = async () => {
   try {
     await userStore.fetchUserInfo()
   } catch (error) {
-    ElMessage.error('获取用户信息失败')
-    console.error(error)
+    console.error('获取用户信息失败:', error)
+    if (error.message?.includes('Network Error') || error.message?.includes('ERR_EMPTY_RESPONSE')) {
+      ElMessage.error('后端服务未启动，请检查SSO服务（端口10002）是否运行')
+    } else {
+      ElMessage.error('获取用户信息失败')
+    }
   } finally {
     loading.value = false
   }

@@ -29,7 +29,7 @@
           <el-menu-item index="/products">商品列表</el-menu-item>
           <el-menu-item index="/seckill">秒杀专区</el-menu-item>
           <el-menu-item index="/cart">购物车</el-menu-item>
-          <el-menu-item index="/order">我的订单</el-menu-item>
+          <el-menu-item index="/order/list">我的订单</el-menu-item>
         </el-menu>
 
         <div class="user-actions">
@@ -49,7 +49,7 @@
             </el-dropdown>
           </template>
           <template v-else>
-            <el-button type="primary" @click="$router.push('/login')">登录</el-button>
+            <el-button type="primary" @click="$router.push('/user/login')">登录</el-button>
             <el-button @click="$router.push('/register')">注册</el-button>
           </template>
         </div>
@@ -102,7 +102,12 @@ const goToAdminLogin = () => {
 // 组件挂载时，如果有 token 则获取用户信息
 onMounted(async () => {
   if (userStore.token && !userStore.userInfo) {
-    await userStore.fetchUserInfo()
+    try {
+      await userStore.fetchUserInfo()
+    } catch (error) {
+      console.warn('获取用户信息失败，请检查后端SSO服务是否启动:', error)
+      // 不阻断页面渲染，用户可以继续使用
+    }
   }
 })
 </script>

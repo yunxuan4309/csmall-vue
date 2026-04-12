@@ -18,10 +18,19 @@ function createInstance(baseURL) {
   // ---- 请求拦截 ----
   instance.interceptors.request.use(
     config => {
-      const token = localStorage.getItem(import.meta.env.VITE_TOKEN_KEY)
+      // 尝试获取 token（优先 mall_token，其次 admin_token）
+      let token = localStorage.getItem('mall_token')
+      if (!token) {
+        token = localStorage.getItem('admin_token')
+      }
+      
       if (token) {
-        config.headers.Authorization =
-          `${import.meta.env.VITE_TOKEN_PREFIX} ${token}`
+        // 如果 token 已经包含 Bearer 前缀，直接使用；否则添加前缀
+        if (token.startsWith('Bearer ')) {
+          config.headers.Authorization = token
+        } else {
+          config.headers.Authorization = `${import.meta.env.VITE_TOKEN_PREFIX} ${token}`
+        }
       }
       return config
     },
@@ -41,12 +50,18 @@ function createInstance(baseURL) {
 
       // Token 过期或未认证
       if (res.state === 401) {
-        localStorage.removeItem(import.meta.env.VITE_TOKEN_KEY)
+        localStorage.removeItem('mall_token')
+        localStorage.removeItem('admin_token')
         // 避免登录页死循环
-        const currentPath = window.location.hash || window.location.pathname
-        if (!currentPath.includes('/admin/login') && !currentPath.includes('/login')) {
+        const currentPath = window.location.pathname
+        if (!currentPath.includes('/admin/login') && !currentPath.includes('/login') && !currentPath.includes('/user/login')) {
           ElMessage.error('登录已过期，请重新登录')
-          router.push('/admin/login')
+          // 根据当前路径判断跳转到哪个登录页
+          if (currentPath.startsWith('/admin')) {
+            router.push('/admin/login')
+          } else {
+            router.push('/login')
+          }
         }
         return Promise.reject(new Error(res.message || '未登录'))
       }

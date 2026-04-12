@@ -6,43 +6,51 @@
         <p>欢迎回来</p>
       </div>
       
-      <nut-form
+      <el-form
         ref="loginFormRef"
-        :model-value="loginForm"
+        :model="loginForm"
+        :rules="loginRules"
         class="login-form"
+        size="large"
       >
-        <nut-form-item label="用户名" required>
-          <nut-input
+        <el-form-item prop="username">
+          <el-input
             v-model="loginForm.username"
             placeholder="请输入用户名"
             clearable
+            :prefix-icon="User"
           />
-        </nut-form-item>
+        </el-form-item>
         
-        <nut-form-item label="密码" required>
-          <nut-input
+        <el-form-item prop="password">
+          <el-input
             v-model="loginForm.password"
             type="password"
             placeholder="请输入密码"
+            show-password
+            :prefix-icon="Lock"
+            @keyup.enter="handleLogin"
           />
-        </nut-form-item>
+        </el-form-item>
         
-        <div class="login-button-wrapper">
-          <nut-button 
-            type="primary" 
-            block 
-            size="large" 
+        <el-form-item>
+          <el-button
+            type="primary"
+            size="large"
             :loading="loading"
+            class="login-button"
             @click="handleLogin"
           >
             {{ loading ? '登录中...' : '登 录' }}
-          </nut-button>
-        </div>
-      </nut-form>
+          </el-button>
+        </el-form-item>
+      </el-form>
       
       <div class="login-footer">
         <span class="footer-text">还没有账号？</span>
         <router-link to="/register">立即注册</router-link>
+        <span class="divider">|</span>
+        <router-link to="/login" class="back-link">返回选择</router-link>
       </div>
     </div>
   </div>
@@ -51,7 +59,8 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { showToast } from '@nutui/nutui'
+import { ElMessage } from 'element-plus'
+import { User, Lock } from '@element-plus/icons-vue'
 import { useFrontUserStore } from '@/store/frontUser'
 import { REGEX_USERNAME, REGEX_PASSWORD } from '@/utils/constants'
 
@@ -65,49 +74,42 @@ const loginForm = reactive({
   password: ''
 })
 
-// 表单验证
-const validateForm = () => {
-  if (!loginForm.username) {
-    showToast({ message: '请输入用户名', type: 'warning' })
-    return false
-  }
-  if (!REGEX_USERNAME.test(loginForm.username)) {
-    showToast({ message: '用户名格式不正确（4~16位字母数字，首字符为字母）', type: 'warning' })
-    return false
-  }
-  if (!loginForm.password) {
-    showToast({ message: '请输入密码', type: 'warning' })
-    return false
-  }
-  if (!REGEX_PASSWORD.test(loginForm.password)) {
-    showToast({ message: '密码格式不正确（4~16位可打印ASCII字符）', type: 'warning' })
-    return false
-  }
-  return true
+// 表单验证规则
+const loginRules = {
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { pattern: REGEX_USERNAME, message: '用户名格式不正确（4~16位字母数字，首字符为字母）', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { pattern: REGEX_PASSWORD, message: '密码格式不正确（4~16位可打印ASCII字符）', trigger: 'blur' }
+  ]
 }
 
 const handleLogin = async () => {
-  if (!validateForm()) {
-    return
-  }
+  if (!loginFormRef.value) return
   
-  loading.value = true
-  
-  try {
-    await userStore.login(loginForm.username, loginForm.password)
-    
-    showToast({ message: '登录成功', type: 'success' })
-    
-    // 跳转到首页
-    setTimeout(() => {
-      router.push('/')
-    }, 1000)
-  } catch (error) {
-    console.error('登录失败:', error)
-    // 错误消息已在拦截器中显示
-  } finally {
-    loading.value = false
-  }
+  await loginFormRef.value.validate(async (valid) => {
+    if (valid) {
+      loading.value = true
+      
+      try {
+        await userStore.login(loginForm.username, loginForm.password)
+        
+        ElMessage.success('登录成功')
+        
+        // 跳转到首页
+        setTimeout(() => {
+          router.push('/')
+        }, 1000)
+      } catch (error) {
+        console.error('登录失败:', error)
+        // 错误消息已在拦截器中显示
+      } finally {
+        loading.value = false
+      }
+    }
+  })
 }
 </script>
 
@@ -149,12 +151,13 @@ const handleLogin = async () => {
 }
 
 .login-form {
-  margin-top: 20px;
+  margin-top: 30px;
 }
 
-.login-button-wrapper {
-  margin-top: 30px;
-  padding: 0 10px;
+.login-button {
+  width: 100%;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .login-footer {
@@ -178,6 +181,23 @@ const handleLogin = async () => {
 }
 
 .login-footer a:hover {
+  text-decoration: underline;
+}
+
+.divider {
+  margin: 0 10px;
+  color: #ddd;
+}
+
+.back-link {
+  color: #409eff;
+  margin-left: 5px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.back-link:hover {
   text-decoration: underline;
 }
 </style>

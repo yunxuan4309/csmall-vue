@@ -5,7 +5,7 @@ import { ElMessage } from 'element-plus'
 import router from '@/router'
 
 export const useUserStore = defineStore('user', () => {
-  const token = ref(localStorage.getItem('mall_token') || '')
+  const token = ref(localStorage.getItem('admin_token') || '')
   const userInfo = ref(null)
 
   /**
@@ -15,9 +15,9 @@ export const useUserStore = defineStore('user', () => {
     try {
       const res = await adminLogin(username, password)
       
-      // 保存 Token
+      // 保存 Token（管理员只存tokenValue，不需要Bearer前缀）
       token.value = res.data.tokenValue
-      localStorage.setItem('mall_token', res.data.tokenValue)
+      localStorage.setItem('admin_token', res.data.tokenValue)
       
       // 获取用户信息
       await fetchUserInfo()
@@ -58,7 +58,7 @@ export const useUserStore = defineStore('user', () => {
       // 清除本地数据
       token.value = ''
       userInfo.value = null
-      localStorage.removeItem('mall_token')
+      localStorage.removeItem('admin_token')
       
       ElMessage.success('已退出登录')
       router.push('/admin/login')

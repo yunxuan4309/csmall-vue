@@ -9,10 +9,13 @@ export function getCartList() {
 }
 
 /**
- * 添加商品到购物车
+ * 新增商品到购物车
  * @param {Object} data - 购物车数据
  * @param {number} data.skuId - SKU ID
- * @param {number} data.quantity - 数量
+ * @param {string} data.title - 商品标题
+ * @param {string} data.mainPicture - 商品主图URL
+ * @param {number} data.price - 商品单价
+ * @param {number} data.quantity - 购买数量
  * @returns {Promise}
  */
 export function addToCart(data) {
@@ -20,39 +23,33 @@ export function addToCart(data) {
 }
 
 /**
- * 更新购物车商品数量
- * @param {number} id - 购物车项ID
- * @param {number} quantity - 数量
+ * 修改购物车商品数量
+ * @param {Object} data - 更新数据
+ * @param {number} data.id - 购物车记录ID
+ * @param {number} data.quantity - 新的数量
  * @returns {Promise}
  */
-export function updateCartQuantity(id, quantity) {
-  return gatewayHttp.put(`/oms/cart/update/${id}`, { quantity })
+export function updateCartQuantity(data) {
+  return gatewayHttp.post('/oms/cart/update/quantity', data)
 }
 
 /**
- * 删除购物车商品
- * @param {number} id - 购物车项ID
+ * 删除购物车商品(批量)
+ * @param {Array<number>} ids - 购物车记录ID数组
  * @returns {Promise}
  */
-export function deleteCartItem(id) {
-  return gatewayHttp.delete(`/oms/cart/delete/${id}`)
+export function deleteCartItem(ids) {
+  // 支持单个ID或数组
+  const idArray = Array.isArray(ids) ? ids : [ids]
+  return gatewayHttp.post('/oms/cart/delete', null, {
+    params: { ids: idArray }
+  })
 }
 
 /**
- * 批量删除购物车商品
- * @param {Array<number>} ids - 购物车项ID数组
+ * 清空购物车
  * @returns {Promise}
  */
-export function batchDeleteCartItem(ids) {
-  return gatewayHttp.post('/oms/cart/batch-delete', { ids })
-}
-
-/**
- * 选中/取消选中购物车商品
- * @param {number} id - 购物车项ID
- * @param {boolean} checked - 是否选中
- * @returns {Promise}
- */
-export function toggleCartItemChecked(id, checked) {
-  return gatewayHttp.put(`/oms/cart/checked/${id}`, { checked })
+export function clearCart() {
+  return gatewayHttp.post('/oms/cart/delete/all')
 }

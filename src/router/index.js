@@ -38,15 +38,48 @@ const routes = [
         name: 'UserProfile',
         component: () => import('@/views/front/user/UserProfile.vue'),
         meta: { title: '个人中心', requiresAuth: true }
+      },
+      {
+        path: 'cart',
+        name: 'CartList',
+        component: () => import('@/views/front/cart/CartList.vue'),
+        meta: { title: '购物车', requiresAuth: true }
+      },
+      {
+        path: 'order/settle',
+        name: 'OrderSettle',
+        component: () => import('@/views/front/order/OrderSettle.vue'),
+        meta: { title: '确认订单', requiresAuth: true }
+      },
+      {
+        path: 'order/list',
+        name: 'OrderList',
+        component: () => import('@/views/front/order/OrderList.vue'),
+        meta: { title: '我的订单', requiresAuth: true }
+      },
+      {
+        path: 'order/detail',
+        name: 'OrderDetail',
+        component: () => import('@/views/front/order/OrderDetail.vue'),
+        meta: { title: '订单详情', requiresAuth: true }
       }
     ]
   },
+  // 统一登录入口（选择管理员或用户登录）
   {
     path: '/login',
+    name: 'LoginPortal',
+    component: () => import('@/views/LoginPortal.vue'),
+    meta: { title: '登录' }
+  },
+  // 普通用户登录
+  {
+    path: '/user/login',
     name: 'FrontLogin',
     component: () => import('@/views/front/login/LoginView.vue'),
     meta: { title: '用户登录' }
   },
+  // 用户注册
   {
     path: '/register',
     name: 'Register',
@@ -144,13 +177,13 @@ router.beforeEach((to, from, next) => {
   const requiresFrontAuth = to.meta.requiresAuth === true
   
   if (requiresAdminAuth && !userStore.token) {
-    // 后台未登录，跳转到登录页
+    // 后台未登录，跳转到管理员登录页
     next('/admin/login')
   } else if (to.path === '/admin/login' && userStore.token) {
     // 后台已登录，跳转到首页
     next('/admin/dashboard')
   } else if (requiresFrontAuth && !frontUserStore.token) {
-    // 前台需要登录但未登录
+    // 前台需要登录但未登录，跳转到统一登录入口
     next('/login')
   } else {
     next()

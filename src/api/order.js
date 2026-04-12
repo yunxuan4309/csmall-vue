@@ -18,7 +18,7 @@ export function getOrderList(params) {
  * @returns {Promise}
  */
 export function getOrderDetail(id) {
-  return gatewayHttp.get(`/oms/order/${id}`)
+  return gatewayHttp.get('/oms/order/detail', { params: { id } })
 }
 
 /**
@@ -36,7 +36,7 @@ export function createOrder(data) {
  * @returns {Promise}
  */
 export function cancelOrder(id) {
-  return gatewayHttp.put(`/oms/order/cancel/${id}`)
+  return gatewayHttp.post('/oms/order/update/state', { id, state: 2 })
 }
 
 /**
@@ -45,7 +45,7 @@ export function cancelOrder(id) {
  * @returns {Promise}
  */
 export function confirmReceive(id) {
-  return gatewayHttp.put(`/oms/order/receive/${id}`)
+  return gatewayHttp.post('/oms/order/update/state', { id, state: 4 })
 }
 
 /**

@@ -113,9 +113,13 @@ import { useRoute, useRouter } from 'vue-router'
 import { Picture } from '@element-plus/icons-vue'
 import { getFrontSpuDetail, getFrontSpuPageDetail, getFrontSkuList } from '@/api/spu'
 import { ElMessage } from 'element-plus'
+import { useCartStore } from '@/store/cart'
+import { useFrontUserStore } from '@/store/frontUser'
 
 const route = useRoute()
 const router = useRouter()
+const cartStore = useCartStore()
+const userStore = useFrontUserStore()
 
 const loading = ref(false)
 const product = ref(null)
@@ -181,23 +185,69 @@ const selectSku = (sku) => {
 }
 
 // 加入购物车
-const handleAddToCart = () => {
+const handleAddToCart = async () => {
   if (!selectedSku.value) {
     ElMessage.warning('请选择商品规格')
     return
   }
-  // TODO: 调用购物车API
-  ElMessage.success('已加入购物车')
+  
+  // 检查是否登录
+  if (!userStore.token) {
+    ElMessage.warning('请先登录')
+    router.push('/user/login')
+    return
+  }
+  
+  try {
+    await cartStore.addToCart({
+      skuId: selectedSku.value.id,
+      title: selectedSku.value.title || product.value.title,
+      mainPicture: selectedSku.value.mainPicture || (imageList.value[0] || ''),
+      price: selectedSku.value.price,
+      quantity: 1
+    })
+  } catch (error) {
+    ElMessage.error('添加购物车失败')
+  }
 }
 
 // 立即购买
-const handleBuyNow = () => {
+const handleBuyNow = async () => {
   if (!selectedSku.value) {
     ElMessage.warning('请选择商品规格')
     return
   }
-  // TODO: 跳转到订单确认页
-  ElMessage.info('功能开发中')
+  
+  // 检查是否登录
+  if (!userStore.token) {
+    ElMessage.warning('请先登录')
+    router.push('/user/login')
+    return
+  }
+  
+  // 先加入购物车，然后跳转到结算页
+  try {
+    const result = await cartStore.addToCart({
+      skuId: selectedSku.value.id,
+      title: selectedSku.value.title || product.value.title,
+      mainPicture: selectedSku.value.mainPicture || (imageList.value[0] || ''),
+      price: selectedSku.value.price,
+      quantity: 1
+    })
+    
+    if (result) {
+      // 获取刚添加的商品ID（最后一个）
+      const newItem = cartStore.cartItems[cartStore.cartItems.length - 1]
+      if (newItem) {
+        router.push({
+          path: '/order/settle',
+          query: { cartIds: newItem.id }
+        })
+      }
+    }
+  } catch (error) {
+    ElMessage.error('操作失败')
+  }
 }
 
 onMounted(() => {
