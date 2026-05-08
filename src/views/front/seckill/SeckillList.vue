@@ -35,7 +35,7 @@
               </div>
 
               <!-- 商品图片 -->
-              <div class="product-image" @click="goToDetail(product.id)">
+              <div class="product-image" @click="goToSeckillDetail(product.id)">
                 <el-image
                   :src="getFirstImage(product.pictures)"
                   fit="cover"
@@ -51,7 +51,7 @@
               
               <!-- 商品信息 -->
               <div class="product-info">
-                <h3 class="product-title" @click="goToDetail(product.id)">
+                <h3 class="product-title" @click="goToSeckillDetail(product.id)">
                   {{ product.title }}
                 </h3>
                 
@@ -81,6 +81,13 @@
                     @click="goToSeckillDetail(product.id)"
                   >
                     立即秒杀
+                  </el-button>
+                  <el-button
+                    v-else-if="getSeckillStatus(product) === 'ongoing'"
+                    style="width: 100%"
+                    @click="goToSeckillDetail(product.id)"
+                  >
+                    查看详情
                   </el-button>
                   <el-button
                     v-else
@@ -144,7 +151,7 @@ const fetchSeckillList = async () => {
       pageSize: pageSize.value
     })
     
-    productList.value = res.data.list || []
+    productList.value = res.data.list || res.data.records || []
     total.value = Number(res.data.total) || 0
   } catch (error) {
     ElMessage.error('获取秒杀商品列表失败')

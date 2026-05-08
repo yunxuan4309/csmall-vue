@@ -41,15 +41,11 @@ export function getSeckillSkuList(spuId) {
 /**
  * 提交秒杀订单
  * @param {string} randCode - 随机码（从秒杀商品详情的 url 字段获取）
- * @param {Object} data - 订单数据
+ * @param {Object} data - 订单数据（JSON格式，包含 spuId 和 seckillOrderItemAddDTO）
  * @returns {Promise}
  */
 export function submitSeckillOrder(randCode, data) {
-  return seckillHttp.post(`/seckill/${randCode}`, data, {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
-  })
+  return seckillHttp.post(`/seckill/${randCode}`, data)
 }
 
 // ==================== 后台管理秒杀接口 ====================
@@ -99,4 +95,42 @@ export function participateSeckill(data) {
  */
 export function getMySeckillOrders(params) {
   return gatewayHttp.get('/seckill/order/my', { params })
+}
+
+// ==================== 后台管理秒杀CRUD接口 ====================
+
+/**
+ * 新增秒杀SPU
+ * @param {Object} data - { spuId, listPrice, startTime, endTime }
+ * @returns {Promise}
+ */
+export function addSeckillSpu(data) {
+  return gatewayHttp.post('/seckill/manage/spu', data)
+}
+
+/**
+ * 删除秒杀SPU
+ * @param {number} id - seckill_spu表的主键id
+ * @returns {Promise}
+ */
+export function deleteSeckillSpu(id) {
+  return gatewayHttp.delete(`/seckill/manage/spu/${id}`)
+}
+
+/**
+ * 新增秒杀SKU
+ * @param {Object} data - { skuId, spuId, seckillStock, seckillPrice, seckillLimit }
+ * @returns {Promise}
+ */
+export function addSeckillSku(data) {
+  return gatewayHttp.post('/seckill/manage/sku', data)
+}
+
+/**
+ * 删除秒杀SKU
+ * @param {number} id - seckill_sku表的主键id
+ * @returns {Promise}
+ */
+export function deleteSeckillSku(id) {
+  return gatewayHttp.delete(`/seckill/manage/sku/${id}`)
 }
