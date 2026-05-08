@@ -62,6 +62,12 @@ const routes = [
         name: 'OrderDetail',
         component: () => import('@/views/front/order/OrderDetail.vue'),
         meta: { title: '订单详情', requiresAuth: true }
+      },
+      {
+        path: 'order/pay',
+        name: 'OrderPay',
+        component: () => import('@/views/front/order/OrderPay.vue'),
+        meta: { title: '订单支付', requiresAuth: true }
       }
     ]
   },

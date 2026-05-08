@@ -59,11 +59,18 @@
               <el-button size="small" @click="viewDetail(order.id)">查看详情</el-button>
               <el-button 
                 v-if="order.state === 0" 
-                type="danger" 
+                type="primary" 
+                size="small"
+                @click="goToPay(order.id)"
+              >
+                去支付
+              </el-button>
+              <el-button 
+                v-if="order.state === 0" 
                 size="small"
                 @click="cancelOrder(order.id)"
               >
-                取消订单
+                取消
               </el-button>
               <el-button 
                 v-if="order.state === 3" 
@@ -171,7 +178,7 @@ const fetchOrders = async () => {
     
     const res = await getOrderList(params)
     orderList.value = res.data.list || []
-    total.value = res.data.total || 0
+    total.value = Number(res.data.total) || 0
   } catch (error) {
     console.error('获取订单失败:', error)
     ElMessage.error('获取订单失败')
@@ -190,6 +197,14 @@ const handleTabChange = () => {
 const viewDetail = (orderId) => {
   router.push({
     path: '/order/detail',
+    query: { id: orderId }
+  })
+}
+
+// 去支付
+const goToPay = (orderId) => {
+  router.push({
+    path: '/order/pay',
     query: { id: orderId }
   })
 }

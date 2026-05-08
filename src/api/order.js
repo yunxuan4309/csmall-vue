@@ -65,3 +65,14 @@ export function deleteOrder(id) {
 export function getOrderLogistics(id) {
   return gatewayHttp.get(`/oms/order/logistics/${id}`)
 }
+
+/**
+ * 支付订单
+ * @param {Object} data - 支付数据
+ * @param {number} data.id - 订单ID
+ * @param {number} data.paymentType - 支付方式（可选）
+ * @returns {Promise}
+ */
+export function payOrder(data) {
+  return gatewayHttp.post('/oms/order/pay', data)
+}

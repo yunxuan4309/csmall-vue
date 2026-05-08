@@ -218,7 +218,7 @@ const confirmReceive = async () => {
       cancelButtonText: '取消',
       type: 'success'
     })
-    
+
     await apiConfirmReceive(orderDetail.value.id)
     ElMessage.success('确认收货成功')
     fetchOrderDetail()
@@ -228,6 +228,14 @@ const confirmReceive = async () => {
       ElMessage.error('确认收货失败')
     }
   }
+}
+
+// 去支付
+const goToPay = () => {
+  router.push({
+    path: '/order/pay',
+    query: { id: orderDetail.value.id }
+  })
 }
 
 onMounted(() => {

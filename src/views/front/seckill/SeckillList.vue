@@ -145,7 +145,7 @@ const fetchSeckillList = async () => {
     })
     
     productList.value = res.data.list || []
-    total.value = res.data.total || 0
+    total.value = Number(res.data.total) || 0
   } catch (error) {
     ElMessage.error('获取秒杀商品列表失败')
     console.error(error)

@@ -72,12 +72,12 @@
         </el-row>
 
         <!-- 空状态 -->
-        <el-empty v-if="!loading && productList.length === 0" description="请选择左侧商品分类查看商品">
+        <el-empty v-if="!loading && productList.length === 0" description="暂无商品">
           <template #image>
             <el-icon :size="100" color="#909399"><ShoppingBag /></el-icon>
           </template>
           <template #description>
-            <p style="color: #909399; margin-top: 10px;">👈 请从上方分类选择器中选择一个分类</p>
+            <p style="color: #909399; margin-top: 10px;">该分类下暂无商品，请选择其他分类</p>
           </template>
         </el-empty>
       </div>
@@ -124,37 +124,52 @@ const fetchCategoryTree = async () => {
   try {
     const res = await getFrontCategoryTree()
     categoryTree.value = res.data.categories || []
-    
-    // console.log('📂 分类树数据:', categoryTree.value)
-    
-    // 打印服装鞋帽分类的详细信息
-    // const clothingCategory = categoryTree.value.find(cat => cat.id === 3)
-    // if (clothingCategory) {
-    //   console.log('👔 服装鞋帽分类详情:', clothingCategory)
-    //   console.log('👔 子分类列表:', clothingCategory.childrens)
-    // }
-    
+
     // 如果路由中有 categoryId，优先使用路由参数
     if (route.query.categoryId) {
       const targetCategoryId = parseInt(route.query.categoryId)
-      // console.log('🎯 路由参数指定的分类ID:', targetCategoryId)
-      
-      // 在分类树中查找该分类的完整路径
       const categoryPath = findCategoryPathById(categoryTree.value, targetCategoryId)
       if (categoryPath) {
         selectedCategory.value = categoryPath
-        // console.log('✅ 找到分类路径:', categoryPath)
         await fetchProductList()
       } else {
         console.warn('⚠️ 未找到分类ID对应的路径:', targetCategoryId)
+        // 路由参数无效时，默认选择第一个分类
+        await selectFirstCategory()
       }
     } else {
-      // 默认不自动选择分类，让用户自己选择
-      // console.log('ℹ️ 无路由参数，等待用户选择分类')
+      // 默认自动选择第一个分类
+      await selectFirstCategory()
     }
   } catch (error) {
     console.error('获取分类树失败:', error)
   }
+}
+
+// 默认选择第一个分类
+const selectFirstCategory = async () => {
+  if (categoryTree.value.length > 0) {
+    const firstCategory = categoryTree.value[0]
+    // 获取第一个分类的完整路径
+    const categoryPath = getFirstLeafCategoryPath(firstCategory)
+    if (categoryPath) {
+      selectedCategory.value = categoryPath
+      await fetchProductList()
+    }
+  }
+}
+
+// 获取第一个叶子分类的路径
+const getFirstLeafCategoryPath = (category, path = []) => {
+  const currentPath = [...path, category.id]
+
+  // 如果没有子分类，返回当前路径
+  if (!category.childrens || category.childrens.length === 0) {
+    return currentPath
+  }
+
+  // 递归获取第一个子分类的路径
+  return getFirstLeafCategoryPath(category.childrens[0], currentPath)
 }
 
 // 根据分类ID查找完整路径
@@ -221,29 +236,16 @@ const fetchProductList = async () => {
   try {
     let res
     
-    // 如果选择了分类，按分类查询；否则查询所有商品
+    // 如果选择了分类，按分类查询
     if (selectedCategory.value && selectedCategory.value.length > 0) {
       const categoryId = selectedCategory.value[selectedCategory.value.length - 1]
-      // console.log('🔍 当前选择的分类路径:', selectedCategory.value)
-      // console.log('🔍 最终使用的分类ID:', categoryId)
-      
+
       res = await getFrontSpuList(categoryId, {
         page: page.value,
         pageSize: pageSize.value
       })
-      
-      // console.log('✅ 获取到的商品数量:', res.data.list?.length || 0)
-      // if (res.data.list && res.data.list.length > 0) {
-      //   console.log('📦 第一个商品的完整数据:', res.data.list[0])
-      //   console.log('📦 所有字段名:', Object.keys(res.data.list[0]))
-      // }
-      
-      // 打印完整的响应数据结构
-      // console.log('🔍 完整响应数据:', res.data)
     } else {
-      // TODO: 这里需要后端提供一个获取所有商品的接口
-      // 暂时使用第一个分类或者显示提示
-      ElMessage.info('请选择商品分类查看商品')
+      // 没有选择分类时显示空列表
       productList.value = []
       total.value = 0
       loading.value = false
@@ -251,7 +253,7 @@ const fetchProductList = async () => {
     }
     
     productList.value = res.data.list || []
-    total.value = res.data.total || 0
+    total.value = Number(res.data.total) || 0
   } catch (error) {
     ElMessage.error('获取商品列表失败')
     console.error(error)

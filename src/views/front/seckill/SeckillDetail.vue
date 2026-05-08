@@ -225,9 +225,9 @@
         <!-- 支付信息 -->
         <el-form-item label="支付方式" prop="paymentType">
           <el-radio-group v-model="orderForm.paymentType">
-            <el-radio :label="0">银联</el-radio>
-            <el-radio :label="1">微信</el-radio>
-            <el-radio :label="2">支付宝</el-radio>
+            <el-radio :value="0">银联</el-radio>
+            <el-radio :value="1">微信</el-radio>
+            <el-radio :value="2">支付宝</el-radio>
           </el-radio-group>
         </el-form-item>
 
