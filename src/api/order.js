@@ -5,7 +5,7 @@ import gatewayHttp from './request'
  * @param {Object} params - 查询参数
  * @param {number} params.page - 页码
  * @param {number} params.pageSize - 每页数量
- * @param {string} params.status - 订单状态（可选）
+ * @param {string} params.state - 订单状态（可选）
  * @returns {Promise} 返回分页数据
  */
 export function getOrderList(params) {

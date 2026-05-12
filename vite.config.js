@@ -9,5 +9,17 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, 'src')
     }
+  },
+  server: {
+    proxy: {
+      '/sso': 'http://localhost:10087',
+      '/front': 'http://localhost:10087',
+      '/oms': 'http://localhost:10087',
+      '/search': 'http://localhost:10087',
+      '/resource': 'http://localhost:10087',
+      '/seckill': 'http://localhost:10087',
+      '/admin': 'http://localhost:10087',
+      '/user': 'http://localhost:10087',
+    }
   }
 })

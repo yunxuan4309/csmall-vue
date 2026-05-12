@@ -173,7 +173,7 @@ const fetchOrders = async () => {
     
     // 如果不是全部，添加状态筛选
     if (activeTab.value !== 'all') {
-      params.status = activeTab.value
+      params.state = activeTab.value
     }
     
     const res = await getOrderList(params)
