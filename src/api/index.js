@@ -36,3 +36,6 @@ export * from './search'
 
 // 文件上传
 export * from './upload'
+
+// AI 智能导购
+export * from './ai'

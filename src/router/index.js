@@ -34,6 +34,12 @@ const routes = [
         meta: { title: '秒杀详情' }
       },
       {
+        path: 'ai',
+        name: 'AIAssistant',
+        component: () => import('@/views/front/ai/AIAssistant.vue'),
+        meta: { title: 'AI 智能导购', requiresAuth: true }
+      },
+      {
         path: 'user/profile',
         name: 'UserProfile',
         component: () => import('@/views/front/user/UserProfile.vue'),

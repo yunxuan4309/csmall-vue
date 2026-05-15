@@ -1,9 +1,16 @@
 <template>
   <router-view />
+  <!-- AI 悬浮窗（登录后显示） -->
+  <FloatingAI v-if="isLoggedIn" />
 </template>
 
 <script setup>
-// App 根组件
+import { computed } from 'vue'
+import { useFrontUserStore } from '@/store/frontUser'
+import FloatingAI from '@/components/common/FloatingAI.vue'
+
+const frontUserStore = useFrontUserStore()
+const isLoggedIn = computed(() => !!frontUserStore.token)
 </script>
 
 <style>

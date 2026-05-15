@@ -208,5 +208,44 @@ git push origin master
 
 ---
 
-**文档更新时间**: 2026-05-08  
+**文档更新时间**: 2026-05-15  
 **当前 Commit**: 91b7db7
+
+---
+
+## 九、服务器部署速查
+
+### 9.1 服务器信息
+
+| 配置项 | 值 |
+|--------|-----|
+| 公网 IP | 8.156.85.160 |
+| 登录用户 | ecs-user |
+| 后端仓库 | D:\java\csmall |
+| 部署方式 | systemd（JAR 在 `/data/jars/`） |
+
+### 9.2 /data 目录结构
+
+| 目录 | 用途 |
+|------|------|
+| `/data/jars/` | 所有微服务 JAR 包 |
+| `/data/jars/csmall.env` | **共享环境变量文件**（MySQL/Redis/RabbitMQ/AI Key 等） |
+| `/data/jars/logs/` | 应用日志 |
+| `/data/elasticsearch/` | ES 数据 + IK 分词器 |
+| `/data/frontend/` | 前端静态文件 |
+| `/data/csmall-upload/` | 用户上传的图片文件 |
+
+### 9.3 更新环境变量文件
+
+每次 `csmall.env` 有改动（如新增环境变量），必须同步到服务器：
+
+```powershell
+# 本地→服务器
+scp D:\java\csmall\deploy\systemd\csmall.env ecs-user@8.156.85.160:/tmp/
+
+# SSH 到服务器后
+sudo mv /tmp/csmall.env /data/jars/csmall.env
+sudo systemctl restart mall-gateway mall-sso mall-product mall-front mall-search mall-order mall-seckill mall-ums mall-ams mall-resource mall-ai
+```
+
+**重要**：改完 `csmall.env` 后所有服务都要重启，否则新环境变量不生效。
