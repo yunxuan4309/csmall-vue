@@ -28,6 +28,7 @@
         >
           <el-menu-item index="/products">商品列表</el-menu-item>
           <el-menu-item index="/seckill">秒杀专区</el-menu-item>
+          <el-menu-item index="/ai">AI 智能导购</el-menu-item>
           <el-menu-item index="/cart">购物车</el-menu-item>
           <el-menu-item index="/order/list">我的订单</el-menu-item>
         </el-menu>

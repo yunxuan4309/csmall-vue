@@ -74,6 +74,10 @@
             <el-button type="danger" size="large" @click="handleBuyNow">
               立即购买
             </el-button>
+            <el-button size="large" @click="handleAddToCompare">
+              <el-icon><DataAnalysis /></el-icon>
+              加入对比
+            </el-button>
           </div>
         </div>
       </div>
@@ -110,7 +114,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Picture } from '@element-plus/icons-vue'
+import { Picture, DataAnalysis } from '@element-plus/icons-vue'
 import { getFrontSpuDetail, getFrontSpuPageDetail, getFrontSkuList } from '@/api/spu'
 import { ElMessage } from 'element-plus'
 import { useCartStore } from '@/store/cart'
@@ -217,14 +221,14 @@ const handleBuyNow = async () => {
     ElMessage.warning('请选择商品规格')
     return
   }
-  
+
   // 检查是否登录
   if (!userStore.token) {
     ElMessage.warning('请先登录')
     router.push('/user/login')
     return
   }
-  
+
   // 先加入购物车，然后跳转到结算页
   try {
     const result = await cartStore.addToCart({
@@ -234,7 +238,7 @@ const handleBuyNow = async () => {
       price: selectedSku.value.price,
       quantity: 1
     })
-    
+
     if (result) {
       // 获取刚添加的商品ID（最后一个）
       const newItem = cartStore.cartItems[cartStore.cartItems.length - 1]
@@ -247,6 +251,22 @@ const handleBuyNow = async () => {
     }
   } catch (error) {
     ElMessage.error('操作失败')
+  }
+}
+
+// 添加到 AI 对比
+const handleAddToCompare = () => {
+  // 通过事件总线或 provide/inject 传递
+  // 这里使用 window 上的全局方法
+  if (window.floatingAI?.addToCompare) {
+    window.floatingAI.addToCompare({
+      spuId: product.value.id,
+      name: product.value.title,
+      listPrice: product.value.listPrice,
+      picture: imageList.value[0] || ''
+    })
+  } else {
+    ElMessage.info('请先登录后使用 AI 对比功能')
   }
 }
 
