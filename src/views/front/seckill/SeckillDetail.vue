@@ -110,15 +110,19 @@
               v-if="seckillStatus === 'ongoing' && product.url"
               type="danger"
               size="large"
+              class="btn-flash-big"
               @click="showOrderDialog = true"
             >
+              <el-icon><Lightning /></el-icon>
               立即秒杀
             </el-button>
             <el-button
               v-else
               disabled
               size="large"
+              class="btn-disabled-big"
             >
+              <el-icon><Clock /></el-icon>
               {{ seckillStatus === 'not_started' ? '等待开始' : '已结束' }}
             </el-button>
           </div>
@@ -269,7 +273,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Picture } from '@element-plus/icons-vue'
+import { Picture, Lightning, Clock } from '@element-plus/icons-vue'
 import {
   getSeckillSpuDetail,
   getSeckillSpuPageDetail,
@@ -1002,6 +1006,46 @@ onUnmounted(() => {
   margin-top: 30px;
 }
 
+.action-buttons .el-button {
+  height: 52px;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 8px;
+  letter-spacing: 2px;
+  transition: all 0.25s ease;
+  padding: 0 40px;
+}
+
+.action-buttons .el-button:hover {
+  transform: translateY(-2px);
+}
+
+.action-buttons .el-button:active {
+  transform: translateY(0);
+}
+
+/* 立即秒杀按钮 */
+.btn-flash-big {
+  background: linear-gradient(135deg, #f56c6c, #e63946);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(245, 108, 108, 0.35);
+}
+.btn-flash-big:hover {
+  background: linear-gradient(135deg, #e74c5e, #d32f3f);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(245, 108, 108, 0.5);
+}
+
+/* 禁用按钮 */
+.btn-disabled-big {
+  background-color: #f5f7fa;
+  border-color: #e4e7ed;
+  color: #c0c4cc;
+  cursor: not-allowed;
+}
+
 .sku-section {
   margin: 40px 0;
   padding-top: 30px;
@@ -1093,5 +1137,39 @@ onUnmounted(() => {
   font-size: 24px;
   color: #f56c6c;
   font-weight: 600;
+}
+
+@media (max-width: 767px) {
+  .product-main {
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 12px;
+    margin-bottom: 20px;
+  }
+
+  .product-gallery {
+    flex: none;
+    width: 100%;
+  }
+
+  .main-image {
+    height: 280px;
+  }
+
+  .product-title {
+    font-size: 18px;
+  }
+
+  .price-section .seckill-price {
+    font-size: 26px;
+  }
+
+  .action-buttons .el-button {
+    width: 100%;
+  }
+
+  .sku-list {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
 }
 </style>

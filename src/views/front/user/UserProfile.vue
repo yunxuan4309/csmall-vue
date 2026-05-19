@@ -121,4 +121,14 @@ onMounted(() => {
   gap: 15px;
   justify-content: center;
 }
+
+@media (max-width: 767px) {
+  .action-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .action-buttons .el-button {
+    width: 100%;
+  }
+}
 </style>

@@ -9,6 +9,7 @@ import '@nutui/nutui/dist/style.css'
 import pinia from './store'
 import router from './router'
 import './style.css'
+import './styles/responsive.css'
 import App from './App.vue'
 
 const app = createApp(App)

@@ -200,4 +200,19 @@ const handleLogin = async () => {
 .back-link:hover {
   text-decoration: underline;
 }
+
+@media (max-width: 767px) {
+  .login-container {
+    padding: 12px;
+    align-items: flex-start;
+    padding-top: 60px;
+  }
+  .login-box {
+    max-width: 100%;
+    padding: 24px 16px;
+  }
+  .login-header h2 {
+    font-size: 22px;
+  }
+}
 </style>

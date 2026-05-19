@@ -13,7 +13,7 @@
           <el-col
             v-for="product in productList"
             :key="product.id"
-            :xs="24"
+            :xs="12"
             :sm="12"
             :md="8"
             :lg="6"
@@ -77,22 +77,24 @@
                   <el-button
                     v-if="getSeckillStatus(product) === 'ongoing' && product.url"
                     type="danger"
-                    style="width: 100%"
+                    class="btn-flash"
                     @click="goToSeckillDetail(product.id)"
                   >
-                    立即秒杀
+                    <el-icon><Lightning /></el-icon>
+                    <span>立即秒杀</span>
                   </el-button>
                   <el-button
                     v-else-if="getSeckillStatus(product) === 'ongoing'"
-                    style="width: 100%"
+                    class="btn-view-detail"
                     @click="goToSeckillDetail(product.id)"
                   >
-                    查看详情
+                    <el-icon><Search /></el-icon>
+                    <span>查看详情</span>
                   </el-button>
                   <el-button
                     v-else
                     disabled
-                    style="width: 100%"
+                    class="btn-disabled"
                   >
                     {{ getStatusText(product) }}
                   </el-button>
@@ -125,7 +127,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Picture } from '@element-plus/icons-vue'
+import { Picture, Lightning, Search } from '@element-plus/icons-vue'
 import { getSeckillSpuList } from '@/api/seckill'
 import { ElMessage } from 'element-plus'
 
@@ -381,11 +383,85 @@ onUnmounted(() => {
 
 .action-buttons {
   margin-top: 15px;
+  width: 100%;
+}
+
+/* 秒杀按钮通用样式 */
+.action-buttons .el-button {
+  width: 100%;
+  height: 42px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: all 0.25s ease;
+  letter-spacing: 1px;
+}
+
+.action-buttons .el-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+.action-buttons .el-button:active {
+  transform: translateY(0);
+}
+
+/* 立即秒杀按钮 - 渐变红色 */
+.action-buttons .btn-flash {
+  background: linear-gradient(135deg, #f56c6c, #e63946);
+  border-color: transparent;
+  color: #fff;
+}
+.action-buttons .btn-flash:hover {
+  background: linear-gradient(135deg, #e74c5e, #d32f3f);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(245, 108, 108, 0.45);
+}
+
+/* 查看详情按钮 */
+.action-buttons .btn-view-detail {
+  background: linear-gradient(135deg, #409eff, #337ecc);
+  border-color: transparent;
+  color: #fff;
+}
+.action-buttons .btn-view-detail:hover {
+  background: linear-gradient(135deg, #337ecc, #286bb5);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(64, 158, 255, 0.4);
+}
+
+/* 已结束/即将开始按钮 */
+.action-buttons .btn-disabled {
+  background-color: #f5f7fa;
+  border-color: #e4e7ed;
+  color: #c0c4cc;
+  cursor: not-allowed;
 }
 
 .pagination {
   margin-top: 20px;
   display: flex;
   justify-content: center;
+}
+
+@media (max-width: 767px) {
+  .time-badge {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+  .countdown {
+    font-size: 11px;
+  }
+  .seckill-card {
+    margin-bottom: 10px;
+  }
+  .seckill-price {
+    font-size: 18px;
+  }
+  .original-price {
+    font-size: 12px;
+  }
 }
 </style>

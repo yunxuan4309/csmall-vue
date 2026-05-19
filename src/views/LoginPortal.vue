@@ -221,17 +221,52 @@ const goToRegister = () => {
 }
 
 /* 响应式设计 */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .portal-options {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
-  
+
   .login-portal-box {
-    padding: 20px;
+    padding: 20px 12px;
   }
-  
+
   .portal-header h1 {
-    font-size: 28px;
+    font-size: 26px;
+  }
+
+  .portal-header {
+    margin-bottom: 24px;
+  }
+
+  .option-content {
+    padding: 12px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .option-icon {
+    margin-bottom: 12px;
+  }
+
+  .option-info h3 {
+    font-size: 20px;
+  }
+
+  .feature-list {
+    display: none;
+  }
+
+  .enter-btn {
+    margin-top: 0;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .portal-options {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
   }
 }
 </style>

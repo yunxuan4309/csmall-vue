@@ -1,12 +1,12 @@
 <template>
   <el-container class="admin-layout">
-    <!-- 侧边栏 -->
-    <el-aside :width="isCollapse ? '64px' : '200px'" class="sidebar">
+    <!-- 侧边栏（桌面显示） -->
+    <el-aside :width="isCollapse ? '64px' : '200px'" class="sidebar hide-xs-only">
       <div class="logo">
         <h3 v-if="!isCollapse">Mall Admin</h3>
         <h3 v-else>MA</h3>
       </div>
-      
+
       <el-menu
         :default-active="activeMenu"
         :collapse="isCollapse"
@@ -17,7 +17,7 @@
           <el-icon><Odometer /></el-icon>
           <span>仪表盘</span>
         </el-menu-item>
-        
+
         <el-sub-menu index="system">
           <template #title>
             <el-icon><Setting /></el-icon>
@@ -36,7 +36,7 @@
             <span>权限管理</span>
           </el-menu-item>
         </el-sub-menu>
-        
+
         <el-sub-menu index="product">
           <template #title>
             <el-icon><Goods /></el-icon>
@@ -55,48 +55,136 @@
             <span>商品列表</span>
           </el-menu-item>
         </el-sub-menu>
-        
+
         <el-menu-item index="/admin/order">
           <el-icon><List /></el-icon>
           <span>订单管理</span>
         </el-menu-item>
       </el-menu>
     </el-aside>
-    
+
+    <!-- 移动端侧边栏 Drawer -->
+    <el-drawer
+      v-model="mobileMenuVisible"
+      direction="ltr"
+      size="70%"
+      title="Mall Admin"
+      :with-header="true"
+      class="show-xs-only"
+    >
+      <el-menu
+        :default-active="activeMenu"
+        mode="vertical"
+        :unique-opened="true"
+        router
+        @select="() => { mobileMenuVisible = false }"
+      >
+        <el-menu-item index="/admin/dashboard">
+          <el-icon><Odometer /></el-icon>
+          <span>仪表盘</span>
+        </el-menu-item>
+
+        <el-sub-menu index="system">
+          <template #title>
+            <el-icon><Setting /></el-icon>
+            <span>系统管理</span>
+          </template>
+          <el-menu-item index="/admin/admin-user">
+            <el-icon><User /></el-icon>
+            <span>管理员管理</span>
+          </el-menu-item>
+          <el-menu-item index="/admin/role">
+            <el-icon><Avatar /></el-icon>
+            <span>角色管理</span>
+          </el-menu-item>
+          <el-menu-item index="/admin/permission">
+            <el-icon><Lock /></el-icon>
+            <span>权限管理</span>
+          </el-menu-item>
+        </el-sub-menu>
+
+        <el-sub-menu index="product">
+          <template #title>
+            <el-icon><Goods /></el-icon>
+            <span>商品管理</span>
+          </template>
+          <el-menu-item index="/admin/product/category">
+            <el-icon><Menu /></el-icon>
+            <span>分类管理</span>
+          </el-menu-item>
+          <el-menu-item index="/admin/product/brand">
+            <el-icon><Collection /></el-icon>
+            <span>品牌管理</span>
+          </el-menu-item>
+          <el-menu-item index="/admin/product/spu">
+            <el-icon><Goods /></el-icon>
+            <span>商品列表</span>
+          </el-menu-item>
+        </el-sub-menu>
+
+        <el-menu-item index="/admin/order">
+          <el-icon><List /></el-icon>
+          <span>订单管理</span>
+        </el-menu-item>
+      </el-menu>
+    </el-drawer>
+
     <el-container>
       <!-- 顶栏 -->
       <el-header class="header">
         <div class="header-left">
-          <el-icon 
-            class="collapse-icon" 
+          <!-- 桌面端展开/折叠 -->
+          <el-icon
+            class="collapse-icon hide-xs-only"
             @click="toggleCollapse"
           >
             <Fold v-if="!isCollapse" />
             <Expand v-else />
           </el-icon>
-          <el-breadcrumb separator="/">
+          <!-- 移动端菜单按钮 -->
+          <el-icon
+            class="mobile-menu-btn show-xs-only"
+            @click="mobileMenuVisible = true"
+          >
+            <Menu />
+          </el-icon>
+          <el-breadcrumb separator="/" class="hide-xs-only">
             <el-breadcrumb-item :to="{ path: '/admin/dashboard' }">首页</el-breadcrumb-item>
             <el-breadcrumb-item v-for="item in breadcrumbs" :key="item.path">
               {{ item.title }}
             </el-breadcrumb-item>
           </el-breadcrumb>
+          <!-- 移动端显示当前页面标题 -->
+          <span class="show-xs-only mobile-page-title">{{ currentPageTitle }}</span>
         </div>
-        
+
         <div class="header-right">
           <!-- 回到商品页面按钮 -->
-          <el-button 
-            type="success" 
+          <el-button
+            type="success"
             size="small"
+            class="hide-xs-only"
             @click="goToFrontend"
           >
             <el-icon><Shop /></el-icon>
             回到商品页面
           </el-button>
-          
+          <!-- 移动端简版 -->
+          <el-button
+            type="success"
+            size="small"
+            circle
+            class="show-xs-only"
+            @click="goToFrontend"
+            title="回到商品页面"
+          >
+            <el-icon><Shop /></el-icon>
+          </el-button>
+
           <el-dropdown @command="handleCommand">
             <span class="user-info">
               <el-avatar :size="32" :icon="UserFilled" />
-              <span class="username">{{ userStore.userInfo?.nickname || '管理员' }}</span>
+              <span class="username hide-xs-only">{{ userStore.userInfo?.nickname || '管理员' }}</span>
             </span>
             <template #dropdown>
               <el-dropdown-menu>
@@ -113,7 +201,7 @@
           </el-dropdown>
         </div>
       </el-header>
-      
+
       <!-- 内容区 -->
       <el-main class="main-content">
         <router-view v-slot="{ Component }">
@@ -130,15 +218,15 @@
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user'
-import { 
-  Odometer, 
-  Setting, 
-  User, 
-  Avatar, 
-  Lock, 
-  Goods, 
-  Menu, 
-  Collection, 
+import {
+  Odometer,
+  Setting,
+  User,
+  Avatar,
+  Lock,
+  Goods,
+  Menu,
+  Collection,
   List,
   Fold,
   Expand,
@@ -152,9 +240,15 @@ const router = useRouter()
 const userStore = useUserStore()
 
 const isCollapse = ref(false)
+const mobileMenuVisible = ref(false)
 
 // 当前激活的菜单
 const activeMenu = computed(() => route.path)
+
+// 移动端当前页面标题
+const currentPageTitle = computed(() => {
+  return route.meta?.title || '管理后台'
+})
 
 // 面包屑导航
 const breadcrumbs = computed(() => {
@@ -289,6 +383,13 @@ const handleCommand = (command) => {
   overflow-y: auto;
 }
 
+/* 移动端页面标题 */
+.mobile-page-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+}
+
 /* 过渡动画 */
 .fade-enter-active,
 .fade-leave-active {
@@ -298,5 +399,25 @@ const handleCommand = (command) => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* 移动端适配 */
+@media (max-width: 767px) {
+  .header {
+    padding: 0 10px !important;
+  }
+  .header-left {
+    gap: 8px;
+  }
+  .main-content {
+    padding: 10px !important;
+  }
+}
+
+/* 平板端适配 */
+@media (min-width: 768px) and (max-width: 991px) {
+  .main-content {
+    padding: 14px;
+  }
 }
 </style>

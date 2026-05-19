@@ -303,6 +303,62 @@ onMounted(async () => {
   border-top: 1px solid #ebeef5;
 }
 
+@media (max-width: 767px) {
+  .cart-item {
+    flex-wrap: wrap;
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .item-image {
+    width: 70px;
+    height: 70px;
+    margin: 0 10px;
+  }
+
+  .item-info {
+    margin: 0;
+    min-width: calc(100% - 120px);
+  }
+
+  .item-title {
+    font-size: 14px;
+  }
+
+  .item-price {
+    font-size: 15px;
+  }
+
+  .item-subtotal {
+    display: none;
+  }
+
+  .item-quantity {
+    margin: 0;
+    margin-left: auto;
+  }
+
+  .cart-footer {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .footer-left {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .footer-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .total-price .price {
+    font-size: 20px;
+  }
+}
+
 .footer-left {
   display: flex;
   align-items: center;

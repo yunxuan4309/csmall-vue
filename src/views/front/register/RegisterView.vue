@@ -318,4 +318,22 @@ const handleRegister = async () => {
 .back-link:hover {
   text-decoration: underline;
 }
+
+@media (max-width: 767px) {
+  .register-container {
+    padding: 12px;
+    align-items: flex-start;
+    padding-top: 40px;
+  }
+  .register-box {
+    max-width: 100%;
+    padding: 20px 12px;
+  }
+  .register-header h2 {
+    font-size: 22px;
+  }
+  .register-form {
+    margin-top: 20px;
+  }
+}
 </style>

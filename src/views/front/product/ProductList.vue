@@ -33,7 +33,7 @@
           <el-col
             v-for="product in productList"
             :key="product.id"
-            :xs="24"
+            :xs="12"
             :sm="12"
             :md="8"
             :lg="6"
@@ -422,5 +422,21 @@ onMounted(() => {
   margin-top: 20px;
   display: flex;
   justify-content: center;
+}
+
+@media (max-width: 767px) {
+  .category-filter {
+    flex-wrap: wrap;
+  }
+  .category-filter .el-cascader {
+    width: 100%;
+  }
+  .category-filter .el-button {
+    width: 100%;
+    margin-top: 8px;
+  }
+  .product-card {
+    margin-bottom: 10px;
+  }
 }
 </style>

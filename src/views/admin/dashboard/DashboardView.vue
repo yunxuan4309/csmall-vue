@@ -161,4 +161,45 @@ onMounted(() => {
   color: #606266;
   line-height: 1.6;
 }
+
+@media (max-width: 767px) {
+  .el-row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  .el-row .el-col {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    flex: 0 0 50%;
+    max-width: 50%;
+    margin-bottom: 10px;
+  }
+  .el-row .el-col:last-child:nth-child(odd) {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  .stat-icon {
+    font-size: 32px;
+  }
+  .stat-value {
+    font-size: 18px;
+  }
+  .stat-label {
+    font-size: 12px;
+  }
+  .quick-actions {
+    flex-direction: column;
+  }
+  .quick-actions .el-button {
+    width: 100%;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .el-row .el-col {
+    flex: 0 0 50%;
+    max-width: 50%;
+    margin-bottom: 16px;
+  }
+}
 </style>

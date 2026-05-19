@@ -291,6 +291,44 @@ onMounted(() => {
   flex: 0 0 450px;
 }
 
+@media (max-width: 767px) {
+  .product-main {
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .product-gallery {
+    flex: none;
+    width: 100%;
+  }
+
+  .main-image {
+    height: 300px;
+  }
+
+  .product-title {
+    font-size: 18px;
+  }
+
+  .price {
+    font-size: 24px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .action-buttons .el-button {
+    width: 100%;
+  }
+
+  .sku-list {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+}
+
 .main-image {
   width: 100%;
   height: 400px;

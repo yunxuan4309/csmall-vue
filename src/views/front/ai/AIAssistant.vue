@@ -781,4 +781,76 @@ defineExpose({ addToCompare })
 .compare-summary {
   margin-top: 16px;
 }
+
+@media (max-width: 767px) {
+  .ai-assistant-page {
+    padding: 10px !important;
+  }
+  .message-area {
+    min-height: 300px;
+    max-height: 400px;
+    padding: 12px;
+  }
+  .message-content {
+    max-width: 90%;
+  }
+  .message-text {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  .product-card {
+    margin-bottom: 8px;
+  }
+  .product-info {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .product-image {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 8px;
+  }
+  .chat-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .header-right {
+    margin-left: 0;
+    width: 100%;
+  }
+  .header-right .el-button-group {
+    width: 100%;
+  }
+  .header-right .el-button-group .el-button {
+    width: 50%;
+  }
+  .compare-container .el-row .el-col {
+    flex: 0 0 50%;
+    max-width: 50%;
+    margin-bottom: 10px;
+  }
+  .selected-card .selected-image {
+    height: 80px;
+  }
+  .input-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .input-actions .el-button {
+    width: 100%;
+  }
+  /* 对比结果 */
+  .compare-images {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .compare-image-item {
+    flex: 0 0 45%;
+  }
+  .compare-product-image {
+    width: 60px;
+    height: 60px;
+  }
+}
 </style>

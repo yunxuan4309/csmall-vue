@@ -111,4 +111,24 @@ const getStatusType = (status) => {
   justify-content: space-between;
   align-items: center;
 }
+
+@media (max-width: 767px) {
+  .card-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+  .el-form--inline .el-form-item {
+    margin-right: 0;
+    width: 100%;
+  }
+  .el-form--inline .el-form-item .el-input,
+  .el-form--inline .el-form-item .el-select {
+    width: 100% !important;
+  }
+  .el-form--inline {
+    display: flex;
+    flex-direction: column;
+  }
+}
 </style>

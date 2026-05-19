@@ -20,10 +20,12 @@
           </el-button>
         </div>
         
+        <!-- 桌面端导航 -->
         <el-menu
           :default-active="activeMenu"
           mode="horizontal"
-          class="nav-menu"
+          class="nav-menu hide-xs-only"
+          :ellipsis="false"
           @select="handleMenuSelect"
         >
           <el-menu-item index="/products">商品列表</el-menu-item>
@@ -32,6 +34,37 @@
           <el-menu-item index="/cart">购物车</el-menu-item>
           <el-menu-item index="/order/list">我的订单</el-menu-item>
         </el-menu>
+
+        <!-- 移动端汉堡菜单 -->
+        <el-button
+          class="mobile-menu-btn"
+          type="primary"
+          link
+          @click="mobileMenuVisible = !mobileMenuVisible"
+        >
+          <el-icon :size="24"><Menu /></el-icon>
+        </el-button>
+
+        <el-drawer
+          v-model="mobileMenuVisible"
+          direction="ltr"
+          size="70%"
+          title="导航菜单"
+          :with-header="true"
+        >
+          <el-menu
+            :default-active="activeMenu"
+            mode="vertical"
+            @select="(index) => { handleMenuSelect(index); mobileMenuVisible = false }"
+          >
+            <el-menu-item index="/products">商品列表</el-menu-item>
+            <el-menu-item index="/seckill">秒杀专区</el-menu-item>
+            <el-menu-item index="/ai">AI 智能导购</el-menu-item>
+            <el-menu-item index="/cart">购物车</el-menu-item>
+            <el-menu-item index="/order/list">我的订单</el-menu-item>
+            <el-menu-item index="/user/profile" v-if="userStore.token">个人中心</el-menu-item>
+          </el-menu>
+        </el-drawer>
 
         <div class="user-actions">
           <template v-if="userStore.token">
@@ -70,14 +103,16 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { User, ArrowDown, Setting } from '@element-plus/icons-vue'
+import { User, ArrowDown, Setting, Menu } from '@element-plus/icons-vue'
 import { useFrontUserStore } from '@/store/frontUser'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useFrontUserStore()
+
+const mobileMenuVisible = ref(false)
 
 const activeMenu = computed(() => route.path)
 
@@ -189,6 +224,51 @@ onMounted(async () => {
   flex: 1;
   background-color: #f5f7fa;
   padding: 20px;
+}
+
+/* 移动端汉堡菜单按钮 */
+.mobile-menu-btn {
+  display: none;
+}
+
+/* 平板端：压缩导航间距 */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .nav-menu .el-menu-item {
+    font-size: 13px;
+    padding: 0 12px;
+  }
+  .header-content {
+    padding: 0 10px;
+  }
+  .logo h2 {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .header-content {
+    padding: 0 12px;
+  }
+
+  .logo h2 {
+    font-size: 18px;
+  }
+
+  .main-content {
+    padding: 12px;
+    min-height: calc(100vh - 120px);
+  }
+
+  .footer {
+    padding: 12px;
+    font-size: 12px;
+  }
 }
 
 .footer {

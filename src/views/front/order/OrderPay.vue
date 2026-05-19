@@ -329,4 +329,32 @@ onMounted(() => {
 .pay-btn {
   min-width: 200px;
 }
+
+@media (max-width: 767px) {
+  .amount-value {
+    font-size: 36px;
+  }
+  .pay-amount-section {
+    padding: 20px 0;
+    margin-bottom: 16px;
+  }
+  .order-info {
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+  .pay-action {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .pay-action .el-button {
+    width: 100%;
+  }
+  .pay-btn {
+    min-width: auto;
+  }
+  .label {
+    width: auto;
+    flex-shrink: 0;
+  }
+}
 </style>

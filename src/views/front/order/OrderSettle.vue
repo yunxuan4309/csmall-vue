@@ -775,4 +775,25 @@ onMounted(async () => {
   padding-top: 20px;
   border-top: 1px solid #ebeef5;
 }
+
+@media (max-width: 767px) {
+  .goods-item {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .goods-subtotal {
+    width: 100%;
+    text-align: left;
+    padding-left: 95px;
+  }
+
+  .submit-section {
+    flex-direction: column;
+  }
+
+  .submit-section .el-button {
+    width: 100%;
+  }
+}
 </style>

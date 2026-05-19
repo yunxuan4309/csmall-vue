@@ -56,38 +56,49 @@
               <span class="price">¥{{ order.amountOfActualPay }}</span>
             </div>
             <div class="order-actions">
-              <el-button size="small" @click="viewDetail(order.id)">查看详情</el-button>
-              <el-button 
-                v-if="order.state === 0" 
-                type="primary" 
-                size="small"
+              <el-button size="default" @click="viewDetail(order.id)">
+                <el-icon><View /></el-icon>
+                <span class="hide-xs-only">查看详情</span>
+              </el-button>
+              <el-button
+                v-if="order.state === 0"
+                type="primary"
+                size="default"
+                class="btn-pay"
                 @click="goToPay(order.id)"
               >
-                去支付
+                <el-icon><Money /></el-icon>
+                <span class="hide-xs-only">去支付</span>
               </el-button>
-              <el-button 
-                v-if="order.state === 0" 
-                size="small"
+              <el-button
+                v-if="order.state === 0"
+                size="default"
+                class="btn-cancel"
                 @click="cancelOrder(order.id)"
               >
-                取消
+                <el-icon><Close /></el-icon>
+                <span class="hide-xs-only">取消</span>
               </el-button>
-              <el-button 
-                v-if="order.state === 3" 
-                type="primary" 
-                size="small"
+              <el-button
+                v-if="order.state === 3"
+                type="success"
+                size="default"
+                class="btn-receive"
                 @click="confirmReceive(order.id)"
               >
-                确认收货
+                <el-icon><Check /></el-icon>
+                <span class="hide-xs-only">确认收货</span>
               </el-button>
-              <el-button 
-                v-if="[1, 2, 4, 5, 7].includes(order.state)" 
-                type="danger" 
-                size="small"
-                link
+              <el-button
+                v-if="[1, 2, 4, 5, 7].includes(order.state)"
+                type="danger"
+                size="default"
+                plain
+                class="btn-delete"
                 @click="deleteOrderItem(order.id)"
               >
-                删除订单
+                <el-icon><Delete /></el-icon>
+                <span class="hide-xs-only">删除</span>
               </el-button>
             </div>
           </div>
@@ -118,7 +129,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Picture } from '@element-plus/icons-vue'
+import { Picture, View, Money, Close, Check, Delete } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getOrderList, cancelOrder as apiCancelOrder, confirmReceive as apiConfirmReceive, deleteOrder as apiDeleteOrder } from '@/api/order'
 
@@ -397,6 +408,118 @@ onMounted(() => {
 
 .order-actions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
+  align-items: center;
+}
+
+/* 订单操作按钮统一样式增强 */
+.order-actions .el-button {
+  font-weight: 500;
+  transition: all 0.25s ease;
+  border-radius: 6px;
+  padding: 8px 16px;
+}
+
+.order-actions .el-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.order-actions .el-button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* 支付按钮 */
+.order-actions .btn-pay {
+  background: linear-gradient(135deg, #e6a23c, #f56c6c);
+  border-color: transparent;
+  color: #fff;
+}
+.order-actions .btn-pay:hover {
+  background: linear-gradient(135deg, #d4892a, #e74c5e);
+  border-color: transparent;
+  color: #fff;
+}
+
+/* 确认收货按钮 */
+.order-actions .btn-receive {
+  background: linear-gradient(135deg, #67c23a, #85ce61);
+  border-color: transparent;
+  color: #fff;
+}
+.order-actions .btn-receive:hover {
+  background: linear-gradient(135deg, #5daf34, #73c255);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(103, 194, 58, 0.4);
+}
+
+/* 取消按钮 */
+.order-actions .btn-cancel {
+  color: #909399;
+  border-color: #dcdfe6;
+}
+.order-actions .btn-cancel:hover {
+  color: #e6a23c;
+  border-color: #e6a23c;
+  background-color: #fdf6ec;
+  box-shadow: 0 4px 12px rgba(230, 162, 60, 0.25);
+}
+
+/* 删除按钮 */
+.order-actions .btn-delete {
+  border-color: #f56c6c;
+  color: #f56c6c;
+}
+.order-actions .btn-delete:hover {
+  background-color: #fef0f0;
+  color: #f56c6c;
+  border-color: #f56c6c;
+  box-shadow: 0 4px 12px rgba(245, 108, 108, 0.3);
+}
+
+/* 查看详情按钮 */
+.order-actions .el-button:not(.btn-pay):not(.btn-receive):not(.btn-cancel):not(.btn-delete):hover {
+  color: #409eff;
+  border-color: #409eff;
+  background-color: #ecf5ff;
+}
+
+@media (max-width: 767px) {
+  .order-header {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .order-sn {
+    font-size: 12px;
+    width: 100%;
+  }
+  .order-time {
+    font-size: 12px;
+  }
+  .order-items {
+    padding: 10px;
+  }
+  .item-image {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+  }
+  .order-footer {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+  .order-total {
+    text-align: center;
+  }
+  .order-actions {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .order-actions .el-button {
+    padding: 8px 12px;
+  }
 }
 </style>

@@ -1,0 +1,254 @@
+/* ========================================
+   全局响应式适配样式 v2.0
+   断点规范（与 Element Plus 一致）：
+     xs:  <768px  | 手机
+     sm:  768-992 | 平板
+     md:  992-1200 | 小桌面
+     lg:  >1200   | 大桌面
+   ======================================== */
+
+/* ======= 工具类 ======= */
+.hide-xs-only { display: none !important; }
+@media (min-width: 768px) { .hide-xs-only { display: initial !important; } }
+
+.show-xs-only { display: initial !important; }
+@media (min-width: 768px) { .show-xs-only { display: none !important; } }
+
+/* ======= 手机 (<768px) ======= */
+@media (max-width: 767px) {
+
+  /* ---- 页面框架 ---- */
+  .front-layout .header-content {
+    padding: 0 12px;
+  }
+
+  .front-layout .logo h2 {
+    font-size: 18px;
+  }
+
+  .front-layout .main-content {
+    padding: 10px;
+    min-height: calc(100vh - 120px);
+  }
+
+  .front-layout .footer {
+    padding: 12px;
+    font-size: 12px;
+  }
+
+  /* ---- el-card 内边距缩小 ---- */
+  .el-card__body {
+    padding: 12px !important;
+  }
+
+  /* ---- 页面标题统一缩小 ---- */
+  .page-header h2,
+  .product-list-page .page-header h2,
+  .seckill-list-page .page-header h2 {
+    font-size: 20px !important;
+  }
+  .page-header .subtitle {
+    font-size: 12px !important;
+  }
+  .page-header {
+    margin-bottom: 12px !important;
+    padding-bottom: 10px !important;
+  }
+
+  /* ---- 页面容器边距归零 ---- */
+  .product-list-page,
+  .product-detail-page,
+  .seckill-list-page,
+  .seckill-detail-page,
+  .cart-page,
+  .order-settle-page,
+  .order-list-page,
+  .order-detail-page,
+  .order-pay-page,
+  .user-profile-page,
+  .ai-assistant-page {
+    padding: 0 !important;
+  }
+
+  /* ---- 商品/秒杀列表图片高度 ---- */
+  .product-card .el-image,
+  .product-card .product-image .el-image,
+  .product-card img,
+  .seckill-card .product-image .el-image,
+  .seckill-card img {
+    height: 120px !important;
+  }
+  .product-image,
+  .seckill-card .product-image {
+    height: 120px !important;
+  }
+
+  /* ---- 分页压缩 ---- */
+  .el-pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+  }
+  .el-pagination .el-pagination__jump {
+    margin-left: 0 !important;
+  }
+  .el-pagination .el-pagination__sizes {
+    display: none;
+  }
+
+  /* ---- 表单标签 ---- */
+  .el-form-item {
+    flex-wrap: wrap;
+  }
+  .el-form-item__label {
+    width: 100% !important;
+    text-align: left !important;
+    padding-bottom: 4px;
+    line-height: 1.4 !important;
+  }
+  .el-form-item__content {
+    width: 100%;
+    margin-left: 0 !important;
+  }
+
+  /* ---- 级联选择器/下拉框全宽 ---- */
+  .el-cascader,
+  .el-select {
+    width: 100% !important;
+  }
+
+  /* ---- el-dialog 自适应 ---- */
+  .el-dialog {
+    width: 92% !important;
+    max-width: 92% !important;
+    margin: 10vh auto 0 !important;
+  }
+  .el-dialog__body {
+    padding: 16px !important;
+  }
+
+  /* ---- el-table 横向滚动 ---- */
+  .el-table {
+    overflow-x: auto;
+  }
+  .el-table .el-table__body-wrapper {
+    overflow-x: auto;
+  }
+  .el-table--scrollable-x .el-table__body-wrapper {
+    overflow-x: auto;
+  }
+
+  /* ---- el-descriptions 自适应 ---- */
+  .el-descriptions__body .el-descriptions__table .el-descriptions__cell {
+    display: block;
+    width: 100% !important;
+  }
+  .el-descriptions__body .el-descriptions__table.is-bordered .el-descriptions__cell {
+    border-width: 0 0 1px 0;
+  }
+  .el-descriptions__body .el-descriptions__table.is-bordered tr:last-child .el-descriptions__cell {
+    border-bottom-width: 1px;
+  }
+
+  /* ---- el-steps 自适应 ---- */
+  .el-steps {
+    flex-wrap: wrap;
+  }
+  .el-step {
+    flex-basis: 33% !important;
+    flex-shrink: 0;
+  }
+
+  /* ---- el-alert 内联倒计时 ---- */
+  .el-alert .countdown-highlight {
+    display: block;
+    margin-top: 4px;
+    font-size: 16px;
+  }
+
+  /* ---- el-tabs ---- */
+  .el-tabs__header {
+    overflow-x: auto;
+  }
+  .el-tabs__nav-wrap {
+    overflow-x: auto;
+  }
+
+  /* ---- 商品标题行高限制 ---- */
+  .product-title {
+    height: auto !important;
+    max-height: 42px;
+  }
+
+  /* ---- el-radio-group 支付选项换行 ---- */
+  .payment-options {
+    flex-direction: column !important;
+    gap: 8px;
+  }
+  .payment-option {
+    margin-right: 0 !important;
+  }
+
+  /* ---- 栅格行间距缩小 ---- */
+  .el-row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  .el-row [class*="el-col-"] {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+  }
+}
+
+/* ======= 平板 (768px-991px) ======= */
+@media (min-width: 768px) and (max-width: 991px) {
+  .product-image,
+  .seckill-card .product-image {
+    height: 160px !important;
+  }
+  .product-card .el-image,
+  .seckill-card .el-image img {
+    height: 160px !important;
+  }
+
+  .el-card__body {
+    padding: 14px !important;
+  }
+
+  .front-layout .main-content {
+    padding: 14px;
+  }
+}
+
+/* ======= 大屏 (≥1920px) ======= */
+@media (min-width: 1920px) {
+  .product-list-page,
+  .seckill-list-page,
+  .product-detail-page,
+  .seckill-detail-page,
+  .cart-page,
+  .order-settle-page,
+  .order-list-page {
+    max-width: 1400px !important;
+  }
+}
+
+/* ======= Admin 后台适配 ======= */
+@media (max-width: 767px) {
+  .admin-layout .el-aside {
+    width: 0 !important;
+    display: none;
+  }
+  .admin-layout .el-header {
+    padding: 0 10px !important;
+  }
+  .admin-layout .el-header .el-breadcrumb {
+    display: none;
+  }
+  .admin-layout .main-content {
+    padding: 10px !important;
+  }
+  .admin-breadcrumb {
+    display: none;
+  }
+}

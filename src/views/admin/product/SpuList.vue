@@ -71,4 +71,26 @@ const tableData = ref([
   justify-content: space-between;
   align-items: center;
 }
+
+@media (max-width: 767px) {
+  .card-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+  .card-header .el-button {
+    width: 100%;
+  }
+  .el-form--inline .el-form-item {
+    margin-right: 0;
+    width: 100%;
+  }
+  .el-form--inline .el-form-item .el-input {
+    width: 100%;
+  }
+  .el-form--inline {
+    display: flex;
+    flex-direction: column;
+  }
+}
 </style>
