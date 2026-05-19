@@ -11,8 +11,9 @@
         :model="registerForm"
         :rules="registerRules"
         class="register-form"
-        size="large"
-        label-width="80px"
+        :size="isMobile ? 'default' : 'large'"
+        :label-width="isMobile ? 'auto' : '80px'"
+        :label-position="isMobile ? 'top' : 'left'"
       >
         <el-form-item label="用户名" prop="username">
           <el-input
@@ -91,7 +92,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { checkValue, userRegister } from '@/api/user'
@@ -107,6 +108,11 @@ import {
 const router = useRouter()
 const registerFormRef = ref(null)
 const loading = ref(false)
+const isMobile = ref(window.innerWidth < 768)
+
+const onResize = () => {
+  isMobile.value = window.innerWidth < 768
+}
 
 const registerForm = reactive({
   username: '',
@@ -159,12 +165,12 @@ const checkUsername = async () => {
   if (!registerForm.username || !REGEX_USERNAME.test(registerForm.username)) {
     return
   }
-  
+
   try {
     await checkValue(registerForm.username, CHECK_TYPE.USERNAME)
     ElMessage.success('用户名可用')
-  } catch (error) {
-    ElMessage.error(error.message || '该用户名已被注册')
+  } catch {
+    // 拦截器已显示错误消息
   }
 }
 
@@ -173,12 +179,12 @@ const checkEmail = async () => {
   if (!registerForm.email || !REGEX_EMAIL.test(registerForm.email)) {
     return
   }
-  
+
   try {
     await checkValue(registerForm.email, CHECK_TYPE.EMAIL)
     ElMessage.success('邮箱可用')
-  } catch (error) {
-    ElMessage.error(error.message || '该邮箱已被注册')
+  } catch {
+    // 拦截器已显示错误消息
   }
 }
 
@@ -187,12 +193,12 @@ const checkPhone = async () => {
   if (!registerForm.phone || !REGEX_PHONE.test(registerForm.phone)) {
     return
   }
-  
+
   try {
     await checkValue(registerForm.phone, CHECK_TYPE.PHONE)
     ElMessage.success('手机号可用')
-  } catch (error) {
-    ElMessage.error(error.message || '该手机号已被注册')
+  } catch {
+    // 拦截器已显示错误消息
   }
 }
 
@@ -229,6 +235,14 @@ const handleRegister = async () => {
     }
   })
 }
+
+onMounted(() => {
+  window.addEventListener('resize', onResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', onResize)
+})
 </script>
 
 <style scoped>
@@ -323,17 +337,30 @@ const handleRegister = async () => {
   .register-container {
     padding: 12px;
     align-items: flex-start;
-    padding-top: 40px;
+    padding-top: 20px;
   }
   .register-box {
     max-width: 100%;
-    padding: 20px 12px;
+    padding: 16px 12px;
+  }
+  .register-header {
+    margin-bottom: 16px;
   }
   .register-header h2 {
     font-size: 22px;
   }
   .register-form {
-    margin-top: 20px;
+    margin-top: 12px;
+  }
+  .register-form :deep(.el-form-item) {
+    margin-bottom: 14px;
+  }
+  .register-button {
+    font-size: 15px;
+  }
+  .register-footer {
+    margin-top: 12px;
+    padding-top: 12px;
   }
 }
 </style>

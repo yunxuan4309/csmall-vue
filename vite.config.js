@@ -20,6 +20,7 @@ export default defineConfig({
       '/seckill': 'http://localhost:10087',
       '/admin': 'http://localhost:10087',
       '/user': 'http://localhost:10087',
+      '/ums': 'http://localhost:10087',
       '/ai': 'http://localhost:10087',
     }
   }

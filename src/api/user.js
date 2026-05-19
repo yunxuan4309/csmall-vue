@@ -30,18 +30,5 @@ export function checkValue(value, type) {
  * @returns {Promise}
  */
 export function userRegister(data) {
-  // 使用 URLSearchParams 转换为 form-urlencoded 格式
-  const params = new URLSearchParams()
-  params.append('username', data.username)
-  params.append('nickname', data.nickname)
-  params.append('password', data.password)
-  params.append('ackPassword', data.ackPassword)
-  params.append('email', data.email)
-  params.append('phone', data.phone)
-  
-  return umsHttp.post('/ums/user/register', params, {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
-  })
+  return umsHttp.post('/ums/user/register', data)
 }
