@@ -6,20 +6,9 @@
           <el-icon><ChatDotRound /></el-icon>
           <span>AI 智能导购助手</span>
           <div class="header-right">
-            <el-button-group size="small">
-              <el-button
-                :type="chatMode === 'single' ? 'primary' : 'default'"
-                @click="switchMode('single')"
-              >
-                单轮模式
-              </el-button>
-              <el-button
-                :type="chatMode === 'multi' ? 'primary' : 'default'"
-                @click="switchMode('multi')"
-              >
-                多轮模式
-              </el-button>
-            </el-button-group>
+            <el-button size="small" type="info" @click="clearChat" v-if="messages.length > 0">
+              新对话
+            </el-button>
           </div>
         </div>
       </template>
@@ -258,11 +247,12 @@
         <!-- 综合推荐 -->
         <el-alert
           v-if="compareResult.summary"
-          :title="compareResult.summary"
           type="success"
           :closable="false"
           class="compare-summary"
-        />
+        >
+          <span v-html="formatMarkdown(compareResult.summary)" />
+        </el-alert>
       </div>
       <template #footer>
         <el-button @click="compareDialogVisible = false">关闭</el-button>
@@ -275,12 +265,11 @@
 import { ref, computed, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { askAI, compareProducts, sendChatMessage } from '@/api/ai'
+import { compareProducts, streamChatMessage } from '@/api/ai'
 
 const router = useRouter()
 
 // 聊天相关
-const chatMode = ref('single') // 'single' 单轮, 'multi' 多轮
 const sessionId = ref(null)
 const question = ref('')
 const messages = ref([])
@@ -312,17 +301,11 @@ const compareTableData = computed(() => {
   }))
 })
 
-// 切换对话模式
-function switchMode(mode) {
-  if (chatMode.value === mode) return
-  chatMode.value = mode
+// 清除对话
+function clearChat() {
   messages.value = []
   sessionId.value = null
-  if (mode === 'multi') {
-    ElMessage.info('已切换到多轮对话模式，支持连续对话')
-  } else {
-    ElMessage.info('已切换到单轮对话模式')
-  }
+  ElMessage.success('已开启新对话')
 }
 
 // 使用建议问题
@@ -331,48 +314,39 @@ function useSuggestion(text) {
   sendQuestion()
 }
 
-// 处理 AI 回复
-function handleAIReply(res) {
-  const data = res.data
-  if (chatMode.value === 'multi' && data.sessionId) {
-    sessionId.value = data.sessionId
-  }
-  messages.value.push({
-    type: 'ai',
-    text: data.reply || data.answer,
-    products: data.relatedProducts || []
-  })
-}
-
-// 发送问题
+// 发送问题（流式）
 async function sendQuestion() {
   const q = question.value.trim()
   if (!q || loading.value) return
 
-  // 添加用户消息
   messages.value.push({ type: 'user', text: q })
+  const aiMsg = { type: 'ai', text: '', products: [] }
+  messages.value.push(aiMsg)
   question.value = ''
   loading.value = true
   scrollToBottom()
 
-  try {
-    let res
-    if (chatMode.value === 'multi') {
-      res = await sendChatMessage(sessionId.value, q)
-    } else {
-      res = await askAI(q, includeProducts.value ? 5 : 0)
+  streamChatMessage(sessionId.value, q, {
+    onSessionId(sid) {
+      sessionId.value = sid
+    },
+    onProducts(products) {
+      aiMsg.products = products
+    },
+    onChunk(chunk) {
+      aiMsg.text += chunk
+      nextTick(scrollToBottom)
+    },
+    onDone() {
+      loading.value = false
+      if (!aiMsg.text) aiMsg.text = '好的，已了解。'
+      nextTick(scrollToBottom)
+    },
+    onError(err) {
+      loading.value = false
+      if (!aiMsg.text) aiMsg.text = '抱歉，AI服务暂时不可用，请稍后重试。'
     }
-    handleAIReply(res)
-  } catch (error) {
-    messages.value.push({
-      type: 'ai',
-      text: '抱歉，AI服务暂时不可用，请稍后重试。',
-      products: []
-    })
-  } finally {
-    loading.value = false
-    nextTick(scrollToBottom)
-  }
+  })
 }
 
 // 滚动到底部
@@ -388,7 +362,10 @@ function formatMarkdown(text) {
   // 转义 HTML
   let html = text.replace(/</g, '&lt;').replace(/>/g, '&gt;')
   // 加粗
-  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+  // 清掉残留的 ** 和 *
+  html = html.replace(/\*\*/g, '')
+  html = html.replace(/\*/g, '')
   // 标题
   html = html.replace(/^### (.+)$/gm, '<h4>$1</h4>')
   html = html.replace(/^## (.+)$/gm, '<h3>$1</h3>')

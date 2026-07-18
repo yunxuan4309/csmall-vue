@@ -226,6 +226,19 @@ onMounted(async () => {
   padding: 20px;
 }
 
+/* 桌面端：主内容区宽度限制 */
+@media (min-width: 768px) {
+  .main-content {
+    padding: 24px 40px;
+  }
+}
+
+@media (min-width: 1920px) {
+  .main-content {
+    padding: 30px 60px;
+  }
+}
+
 /* 移动端汉堡菜单按钮 */
 .mobile-menu-btn {
   display: none;

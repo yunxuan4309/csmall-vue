@@ -25,22 +25,6 @@
             <span>AI 智能导购</span>
           </div>
           <div class="header-actions">
-            <el-tooltip content="切换对话模式" placement="top">
-              <el-button-group size="small">
-                <el-button
-                  :type="chatMode === 'single' ? 'primary' : 'default'"
-                  @click="switchMode('single')"
-                >
-                  单轮
-                </el-button>
-                <el-button
-                  :type="chatMode === 'multi' ? 'primary' : 'default'"
-                  @click="switchMode('multi')"
-                >
-                  多轮
-                </el-button>
-              </el-button-group>
-            </el-tooltip>
             <el-button
               v-if="messages.length > 0"
               type="info"
@@ -148,6 +132,18 @@
           </div>
         </div>
 
+        <!-- 思考过程 -->
+        <transition name="el-fade-in-linear">
+          <div v-if="thinkingSteps.length > 0" class="thinking-bar">
+            <div class="thinking-title">
+              <el-icon><Loading /></el-icon> 正在为您搜索...
+            </div>
+            <div v-for="(step, i) in thinkingSteps" :key="i" class="thinking-step">
+              {{ step }}
+            </div>
+          </div>
+        </transition>
+
         <!-- 输入区域 -->
         <div class="panel-footer">
           <el-input
@@ -214,14 +210,14 @@
         <!-- 综合推荐 -->
         <el-alert
           v-if="compareResult.summary"
-          :title="compareResult.summary"
           type="success"
           :closable="false"
-        />
+        >
+          <span v-html="formatMarkdown(compareResult.summary)" />
+        </el-alert>
       </div>
       <template #footer>
-        <el-button @click="compareDialogVisible = false">关闭</el-button>
-        <el-button type="primary" @click="goToAIPage">完整对比</el-button>
+        <el-button type="primary" @click="compareDialogVisible = false">关闭</el-button>
       </template>
     </el-dialog>
   </div>
@@ -231,18 +227,18 @@
 import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { ChatDotRound, Service, Close, Promotion, Plus } from '@element-plus/icons-vue'
-import { askAI, compareProducts, createChatSession, sendChatMessage } from '@/api/ai'
+import { ChatDotRound, Service, Close, Promotion, Plus, Loading } from '@element-plus/icons-vue'
+import { compareProducts, streamChatMessage } from '@/api/ai'
 
 const router = useRouter()
 
 // 状态
 const isExpanded = ref(false)
-const chatMode = ref('single') // 'single' 单轮, 'multi' 多轮
 const sessionId = ref(null)
 const question = ref('')
 const messages = ref([])
 const loading = ref(false)
+const thinkingSteps = ref([])
 const messageAreaRef = ref(null)
 
 // 快捷问题
@@ -296,24 +292,7 @@ function closePanel() {
 function clearChat() {
   messages.value = []
   sessionId.value = null
-  if (chatMode.value === 'multi') {
-    ElMessage.success('已开启新对话')
-  } else {
-    ElMessage.success('已开启新对话')
-  }
-}
-
-// 切换对话模式
-function switchMode(mode) {
-  if (chatMode.value === mode) return
-  chatMode.value = mode
-  messages.value = []
-  sessionId.value = null
-  if (mode === 'multi') {
-    ElMessage.info('已切换到多轮对话模式，支持连续对话')
-  } else {
-    ElMessage.info('已切换到单轮对话模式')
-  }
+  ElMessage.success('已开启新对话')
 }
 
 // 跳转到 AI 完整页面
@@ -328,50 +307,53 @@ function askQuestion(q) {
   sendQuestion()
 }
 
-// 处理 AI 回复
-function handleAIReply(res) {
-  const data = res.data
-  // 多轮模式保存 sessionId
-  if (chatMode.value === 'multi' && data.sessionId) {
-    sessionId.value = data.sessionId
-  }
-  messages.value.push({
-    type: 'ai',
-    text: data.reply || data.answer,
-    products: data.relatedProducts || []
-  })
-}
-
-// 发送问题
+// 发送问题（流式）
 async function sendQuestion() {
   const q = question.value.trim()
   if (!q || loading.value) return
 
   messages.value.push({ type: 'user', text: q })
+  // 预创建 AI 消息占位
+  const aiMsg = { type: 'ai', text: '', products: [] }
+  messages.value.push(aiMsg)
   question.value = ''
   loading.value = true
   scrollToBottom()
 
-  try {
-    let res
-    if (chatMode.value === 'multi') {
-      // 多轮对话
-      res = await sendChatMessage(sessionId.value, q)
-    } else {
-      // 单轮问答
-      res = await askAI(q, 3)
+  streamChatMessage(sessionId.value, q, {
+    onThinking(step) {
+      thinkingSteps.value.push(step)
+      nextTick(scrollToBottom)
+    },
+    onSessionId(sid) {
+      sessionId.value = sid
+    },
+    onProducts(products) {
+      aiMsg.products = products
+      nextTick(() => {
+        thinkingSteps.value = []
+      })
+    },
+    onChunk(chunk) {
+      aiMsg.text += chunk
+      nextTick(scrollToBottom)
+    },
+    onDone() {
+      loading.value = false
+      thinkingSteps.value = []
+      if (!aiMsg.text) {
+        aiMsg.text = '好的，已了解。'
+      }
+      nextTick(scrollToBottom)
+    },
+    onError(err) {
+      loading.value = false
+      thinkingSteps.value = []
+      if (!aiMsg.text) {
+        aiMsg.text = '抱歉，AI服务暂时不可用，请稍后重试。'
+      }
     }
-    handleAIReply(res)
-  } catch (error) {
-    messages.value.push({
-      type: 'ai',
-      text: '抱歉，AI服务暂时不可用，请稍后重试。',
-      products: []
-    })
-  } finally {
-    loading.value = false
-    nextTick(scrollToBottom)
-  }
+  })
 }
 
 function scrollToBottom() {
@@ -386,7 +368,11 @@ function scrollToBottom() {
 function formatMarkdown(text) {
   if (!text) return ''
   let html = text.replace(/</g, '&lt;').replace(/>/g, '&gt;')
-  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+  // **粗体**
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+  // 清掉残余的 ** 和 *
+  html = html.replace(/\*\*/g, '')
+  html = html.replace(/\*/g, '')
   html = html.replace(/\n/g, '<br>')
   return html
 }
@@ -668,5 +654,54 @@ async function showCompare() {
 
 .el-badge {
   position: static;
+}
+
+/* 思考过程 */
+.thinking-bar {
+  padding: 8px 12px;
+  background: #f0f9ff;
+  border-top: 1px solid #b3d8ff;
+  font-size: 12px;
+  max-height: 120px;
+  overflow-y: auto;
+}
+.thinking-title {
+  color: #409EFF;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+.thinking-step {
+  color: #606266;
+  padding: 2px 0;
+  font-family: monospace;
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 手机端全屏面板 */
+@media (max-width: 767px) {
+  .floating-panel {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 100vw;
+    height: 80vh;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .floating-btn {
+    width: 48px;
+    height: 48px;
+  }
+
+  .panel-body {
+    font-size: 14px;
+  }
 }
 </style>
