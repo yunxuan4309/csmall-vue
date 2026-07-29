@@ -2,10 +2,10 @@
   <div class="login-container">
     <div class="login-box">
       <div class="login-header">
-        <h2>后台管理系统</h2>
-        <p>欢迎登录</p>
+        <h2>后台管理</h2>
+        <p>管理员登录</p>
       </div>
-      
+
       <el-form
         ref="loginFormRef"
         :model="loginForm"
@@ -21,7 +21,7 @@
             clearable
           />
         </el-form-item>
-        
+
         <el-form-item prop="password">
           <el-input
             v-model="loginForm.password"
@@ -33,7 +33,7 @@
             @keyup.enter="handleLogin"
           />
         </el-form-item>
-        
+
         <el-form-item>
           <el-button
             type="primary"
@@ -46,9 +46,8 @@
           </el-button>
         </el-form-item>
       </el-form>
-      
+
       <div class="login-footer">
-        <el-text size="small">测试账号: root / 123456</el-text>
         <div style="margin-top: 10px">
           <router-link to="/login" class="back-link">返回登录选择</router-link>
         </div>
@@ -88,14 +87,12 @@ const loginRules = {
 
 const handleLogin = async () => {
   if (!loginFormRef.value) return
-  
+
   await loginFormRef.value.validate(async (valid) => {
     if (valid) {
       loading.value = true
-      
       try {
         const success = await userStore.login(loginForm.username, loginForm.password)
-        
         if (!success) {
           loading.value = false
         }
@@ -113,41 +110,45 @@ const handleLogin = async () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-color: var(--brand-bg, #f8fafc);
+  padding: 20px;
 }
 
 .login-box {
-  width: 420px;
+  width: 380px;
   padding: 40px;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  border-radius: var(--radius-md, 10px);
+  border: 1px solid var(--brand-border, #e2e8f0);
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
 }
 
 .login-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 32px;
 }
 
 .login-header h2 {
-  font-size: 28px;
-  color: #333;
-  margin: 0 0 10px 0;
+  font-size: 24px;
+  color: var(--brand-text, #1e293b);
+  margin: 0 0 6px 0;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .login-header p {
   font-size: 14px;
-  color: #999;
+  color: var(--brand-text-secondary, #64748b);
   margin: 0;
 }
 
 .login-form {
-  margin-top: 30px;
+  margin-top: 24px;
 }
 
 .login-button {
   width: 100%;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
 }
 
@@ -155,14 +156,13 @@ const handleLogin = async () => {
   text-align: center;
   margin-top: 20px;
   padding-top: 20px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--brand-border, #e2e8f0);
 }
 
 .back-link {
-  color: #409eff;
+  color: var(--brand-primary, #4a6cf7);
   text-decoration: none;
   font-size: 14px;
-  font-weight: 500;
 }
 
 .back-link:hover {
@@ -177,7 +177,6 @@ const handleLogin = async () => {
   }
   .login-box {
     width: 100%;
-    max-width: 100%;
     padding: 24px 16px;
   }
   .login-header h2 {

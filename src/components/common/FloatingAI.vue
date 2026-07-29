@@ -17,7 +17,9 @@
 
     <!-- 展开面板 -->
     <transition name="el-fade-in-linear">
-      <div v-if="isExpanded" class="floating-panel">
+      <div v-if="isExpanded" class="floating-panel" :style="panelStyle">
+        <!-- 拖拽手柄（左上角） -->
+        <div class="resize-handle" @mousedown="onResizeStart" title="拖拽调整大小"></div>
         <!-- 头部 -->
         <div class="panel-header">
           <div class="header-title">
@@ -241,6 +243,36 @@ const loading = ref(false)
 const thinkingSteps = ref([])
 const messageAreaRef = ref(null)
 
+// 面板尺寸（可拖拽调整）
+const panelWidth = ref(380)
+const panelHeight = ref(500)
+const MIN_W = 320
+const MAX_W = 600
+const MIN_H = 400
+const MAX_H = 700
+const panelStyle = computed(() => ({
+  width: panelWidth.value + 'px',
+  height: panelHeight.value + 'px'
+}))
+
+function onResizeStart(e) {
+  const startX = e.clientX
+  const startY = e.clientY
+  const startW = panelWidth.value
+  const startH = panelHeight.value
+  function onMove(ev) {
+    panelWidth.value = Math.min(MAX_W, Math.max(MIN_W, startW - (ev.clientX - startX)))
+    panelHeight.value = Math.min(MAX_H, Math.max(MIN_H, startH - (ev.clientY - startY)))
+  }
+  function onUp() {
+    document.removeEventListener('mousemove', onMove)
+    document.removeEventListener('mouseup', onUp)
+  }
+  document.addEventListener('mousemove', onMove)
+  document.addEventListener('mouseup', onUp)
+  e.preventDefault()
+}
+
 // 快捷问题
 const quickQuestions = [
   '3000元手机推荐',
@@ -313,12 +345,13 @@ async function sendQuestion() {
   if (!q || loading.value) return
 
   messages.value.push({ type: 'user', text: q })
-  // 预创建 AI 消息占位
-  const aiMsg = { type: 'ai', text: '', products: [] }
-  messages.value.push(aiMsg)
+  messages.value.push({ type: 'ai', text: '', products: [] })
+  const aiMsgIndex = messages.value.length - 1
   question.value = ''
   loading.value = true
   scrollToBottom()
+
+  let pendingProducts = null
 
   streamChatMessage(sessionId.value, q, {
     onThinking(step) {
@@ -329,28 +362,29 @@ async function sendQuestion() {
       sessionId.value = sid
     },
     onProducts(products) {
-      aiMsg.products = products
-      nextTick(() => {
-        thinkingSteps.value = []
-      })
+      pendingProducts = products
     },
-    onChunk(chunk) {
-      aiMsg.text += chunk
+    async onChunk(chunk) {
+      messages.value[aiMsgIndex].text += chunk
+      await new Promise(r => setTimeout(r, 20))
       nextTick(scrollToBottom)
     },
     onDone() {
       loading.value = false
       thinkingSteps.value = []
-      if (!aiMsg.text) {
-        aiMsg.text = '好的，已了解。'
+      if (pendingProducts) {
+        messages.value[aiMsgIndex].products = pendingProducts
+      }
+      if (!messages.value[aiMsgIndex].text) {
+        messages.value[aiMsgIndex].text = '好的，已了解。'
       }
       nextTick(scrollToBottom)
     },
     onError(err) {
       loading.value = false
       thinkingSteps.value = []
-      if (!aiMsg.text) {
-        aiMsg.text = '抱歉，AI服务暂时不可用，请稍后重试。'
+      if (!messages.value[aiMsgIndex].text) {
+        messages.value[aiMsgIndex].text = '抱歉，AI服务暂时不可用，请稍后重试。'
       }
     }
   })
@@ -445,14 +479,38 @@ async function showCompare() {
   position: absolute;
   bottom: 70px;
   right: 0;
-  width: 380px;
-  height: 500px;
   background: white;
   border-radius: 12px;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+.resize-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 18px;
+  height: 18px;
+  cursor: nw-resize;
+  z-index: 20;
+  background: linear-gradient(135deg,
+    transparent 40%, rgba(255,255,255,0.35) 40%,
+    rgba(255,255,255,0.35) 55%, transparent 55%,
+    transparent 70%, rgba(255,255,255,0.35) 70%,
+    rgba(255,255,255,0.35) 85%, transparent 85%);
+  border-radius: 12px 0 0 0;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+.resize-handle:hover {
+  opacity: 1;
+  background: linear-gradient(135deg,
+    transparent 40%, rgba(255,255,255,0.6) 40%,
+    rgba(255,255,255,0.6) 55%, transparent 55%,
+    transparent 70%, rgba(255,255,255,0.6) 70%,
+    rgba(255,255,255,0.6) 85%, transparent 85%);
 }
 
 .panel-header {
@@ -690,9 +748,13 @@ async function showCompare() {
     position: fixed;
     bottom: 0;
     right: 0;
-    width: 100vw;
-    height: 80vh;
+    width: 100vw !important;
+    height: 80vh !important;
     border-radius: 12px 12px 0 0;
+  }
+
+  .resize-handle {
+    display: none;
   }
 
   .floating-btn {

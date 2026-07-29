@@ -119,17 +119,18 @@ const handleLogin = async () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background-color: var(--brand-bg, #f8fafc);
   padding: 20px;
 }
 
 .login-box {
   width: 100%;
-  max-width: 400px;
-  padding: 30px 20px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  max-width: 380px;
+  padding: 36px 28px;
+  background: #fff;
+  border-radius: var(--radius-md, 10px);
+  border: 1px solid var(--brand-border, #e2e8f0);
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
 }
 
 .login-header {
@@ -139,14 +140,15 @@ const handleLogin = async () => {
 
 .login-header h2 {
   font-size: 26px;
-  color: #333;
+  color: var(--brand-text, #1e293b);
   margin: 0 0 8px 0;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .login-header p {
   font-size: 14px;
-  color: #999;
+  color: var(--brand-text-secondary, #64748b);
   margin: 0;
 }
 
@@ -164,20 +166,19 @@ const handleLogin = async () => {
   text-align: center;
   margin-top: 20px;
   padding-top: 20px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--brand-border, #e2e8f0);
 }
 
 .footer-text {
   font-size: 14px;
-  color: #666;
+  color: var(--brand-text-secondary, #64748b);
 }
 
 .login-footer a {
-  color: #fa2c19;
+  color: var(--brand-primary, #4a6cf7);
   margin-left: 5px;
   text-decoration: none;
   font-size: 14px;
-  font-weight: 500;
 }
 
 .login-footer a:hover {
@@ -186,15 +187,7 @@ const handleLogin = async () => {
 
 .divider {
   margin: 0 10px;
-  color: #ddd;
-}
-
-.back-link {
-  color: #409eff;
-  margin-left: 5px;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
+  color: var(--brand-border, #e2e8f0);
 }
 
 .back-link:hover {

@@ -43,3 +43,11 @@ export function userLogout() {
 export function getUserInfo() {
   return ssoHttp.get('/user/info/sso/')
 }
+
+/**
+ * 获取管理员仪表盘数据
+ * @returns {Promise} 返回 { todayNewUsers, totalUsers, todayOrders, todayRevenue, pendingOrders, weeklyTrend }
+ */
+export function getDashboard() {
+  return ssoHttp.get('/admin/dashboard')
+}

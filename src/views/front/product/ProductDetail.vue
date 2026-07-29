@@ -107,15 +107,48 @@
         <h3>商品详情</h3>
         <div class="detail-content" v-html="pageDetail"></div>
       </div>
+
+      <!-- 相关商品推荐（AI more_like_this） -->
+      <div v-if="relatedProducts.length > 0" class="related-section">
+        <h3>看了又看</h3>
+        <el-row :gutter="16">
+          <el-col
+            v-for="item in relatedProducts"
+            :key="item.spuId"
+            :xs="12"
+            :sm="8"
+            :md="6"
+          >
+            <div class="related-card-wrapper" @click="goToProduct(item.spuId)">
+              <el-card class="related-card" shadow="hover">
+                <el-image
+                  :src="item.picture || 'https://via.placeholder.com/160'"
+                  fit="cover"
+                  class="related-image"
+                  :preview-src-list="[]"
+                />
+                <div class="related-info">
+                  <div class="related-name">{{ item.name }}</div>
+                  <div class="related-price">¥{{ item.listPrice }}</div>
+                  <div class="related-meta">
+                    <el-tag size="small" type="info" v-if="item.brandName">{{ item.brandName }}</el-tag>
+                  </div>
+                </div>
+              </el-card>
+            </div>
+          </el-col>
+        </el-row>
+      </div>
     </el-card>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Picture, DataAnalysis } from '@element-plus/icons-vue'
 import { getFrontSpuDetail, getFrontSpuPageDetail, getFrontSkuList } from '@/api/spu'
+import { getRelatedProducts } from '@/api/search'
 import { ElMessage } from 'element-plus'
 import { useCartStore } from '@/store/cart'
 import { useFrontUserStore } from '@/store/frontUser'
@@ -131,6 +164,7 @@ const pageDetail = ref('')
 const skuList = ref([])
 const selectedSku = ref(null)
 const currentImage = ref('')
+const relatedProducts = ref([])
 
 // 图片列表
 const imageList = computed(() => {
@@ -181,6 +215,19 @@ const fetchProductDetail = async () => {
   } finally {
     loading.value = false
   }
+
+  // 异步加载相关推荐（不阻塞主流程）
+  fetchRelatedProducts(spuId)
+}
+
+// 获取相关商品推荐
+const fetchRelatedProducts = async (spuId) => {
+  try {
+    const res = await getRelatedProducts(spuId)
+    relatedProducts.value = res.data || []
+  } catch {
+    // 静默失败，不影响主流程
+  }
 }
 
 // 选择SKU
@@ -213,6 +260,11 @@ const handleAddToCart = async () => {
   } catch (error) {
     ElMessage.error('添加购物车失败')
   }
+}
+
+// 跳转商品详情
+const goToProduct = (spuId) => {
+  window.location.href = '/product/' + spuId
 }
 
 // 立即购买
@@ -272,6 +324,10 @@ const handleAddToCompare = () => {
 
 onMounted(() => {
   fetchProductDetail()
+})
+
+watch(() => route.params.id, (newId) => {
+  if (newId) fetchProductDetail()
 })
 </script>
 
@@ -480,5 +536,64 @@ onMounted(() => {
 .detail-content :deep(img) {
   max-width: 100%;
   height: auto;
+}
+
+/* 相关商品推荐 */
+.related-section {
+  padding-top: 30px;
+  margin-top: 20px;
+  border-top: 1px solid #e4e7ed;
+}
+
+.related-section h3 {
+  margin-bottom: 16px;
+  font-size: 18px;
+  color: #303133;
+}
+
+.related-card-wrapper {
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.related-card {
+  transition: transform 0.2s;
+}
+
+.related-card-wrapper:hover .related-card {
+  transform: translateY(-2px);
+}
+
+.related-image {
+  width: 100%;
+  height: 160px;
+  border-radius: 4px;
+}
+
+.related-info {
+  padding: 8px 0 0;
+  text-align: center;
+}
+
+.related-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #303133;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 6px;
+}
+
+.related-price {
+  color: #f56c6c;
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.related-meta {
+  display: flex;
+  justify-content: center;
 }
 </style>

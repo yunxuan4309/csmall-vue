@@ -1,6 +1,6 @@
 <template>
   <div class="order-pay-page" v-loading="loading">
-    <el-card class="pay-container">
+    <el-card class="pay-container card-clean">
       <template #header>
         <div class="header-content">
           <h3>订单支付</h3>
@@ -34,10 +34,10 @@
       <div class="payment-section">
         <h4>选择支付方式</h4>
         <el-radio-group v-model="selectedPaymentType" class="payment-options">
-          <el-radio :value="1" class="payment-option">
+          <el-radio :value="1" disabled class="payment-option">
             <div class="option-content">
               <el-icon :size="24" color="#07c160"><Wallet /></el-icon>
-              <span>微信支付</span>
+              <span>微信支付 <el-tag size="small" type="info">未开放</el-tag></span>
             </div>
           </el-radio>
           <el-radio :value="2" class="payment-option">
@@ -55,11 +55,35 @@
         </el-radio-group>
       </div>
 
+      <!-- 扫码支付二维码 -->
+      <div v-if="showQrCode" class="qr-code-section">
+        <h4>请使用沙箱版支付宝APP扫码付款</h4>
+        <img
+          :src="'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' + encodeURIComponent(qrCodeUrl)"
+          alt="支付二维码"
+          class="qr-image"
+        />
+        <p class="qr-hint">打开沙箱版支付宝 → 扫一扫 → 确认付款</p>
+        <p class="qr-amount">应付：<strong>¥{{ orderDetail?.amountOfActualPay || '0.00' }}</strong></p>
+        <el-button type="success" size="large" :loading="checking" @click="checkPaymentStatus">
+          已完成付款，查询结果
+        </el-button>
+      </div>
+
+      <!-- 支付中提示 -->
+      <el-alert
+        v-if="showPaymentCheck"
+        title="请在新打开的窗口中完成付款，付款完成后点击下方按钮确认结果"
+        type="info"
+        :closable="false"
+        style="margin-bottom: 20px"
+      />
+
       <!-- 支付按钮 -->
       <div class="pay-action">
-        <el-button 
-          type="primary" 
-          size="large" 
+        <el-button
+          type="primary"
+          size="large"
           :loading="paying"
           :disabled="!canPay"
           class="pay-btn"
@@ -67,8 +91,17 @@
         >
           确认支付 ¥{{ orderDetail?.amountOfActualPay || '0.00' }}
         </el-button>
-        <el-button 
-          size="large" 
+        <el-button
+          v-if="showPaymentCheck"
+          type="success"
+          size="large"
+          :loading="checking"
+          @click="checkPaymentStatus"
+        >
+          已完成付款，查询结果
+        </el-button>
+        <el-button
+          size="large"
           @click="$router.back()"
           :disabled="paying"
         >
@@ -93,15 +126,19 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Wallet, Money, CreditCard } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getOrderDetail, payOrder } from '@/api/order'
+import { getOrderDetail, payOrder, queryPayment } from '@/api/order'
 
 const route = useRoute()
 const router = useRouter()
 
 const loading = ref(false)
 const paying = ref(false)
+const checking = ref(false)
+const showPaymentCheck = ref(false)
+const showQrCode = ref(false)
+const qrCodeUrl = ref('')
 const orderDetail = ref(null)
-const selectedPaymentType = ref(1)
+const selectedPaymentType = ref(2)
 
 // 订单状态映射
 const stateMap = {
@@ -168,7 +205,7 @@ const fetchOrderDetail = async () => {
 // 处理支付
 const handlePay = async () => {
   if (!orderDetail.value) return
-  
+
   // 确认支付
   try {
     await ElMessageBox.confirm(
@@ -190,10 +227,24 @@ const handlePay = async () => {
       id: orderDetail.value.id,
       paymentType: selectedPaymentType.value
     })
-    
+
+    // 如果返回了支付表单（电脑网站支付），直接渲染到当前页面
+    if (res.data && res.data.paymentForm) {
+      document.write(res.data.paymentForm)
+      document.close()
+      return
+    }
+
+    // 如果返回了支付链接（支付宝扫码支付），显示二维码
+    if (res.data && res.data.paymentUrl) {
+      qrCodeUrl.value = res.data.paymentUrl
+      showQrCode.value = true
+      ElMessage.success('请使用沙箱版支付宝APP扫描二维码付款')
+      return
+    }
+
+    // 无表单无链接 = 直接支付成功（银联模拟等）
     ElMessage.success('支付成功！')
-    
-    // 跳转到订单详情页
     setTimeout(() => {
       router.replace({
         path: '/order/detail',
@@ -205,6 +256,32 @@ const handlePay = async () => {
     ElMessage.error(error.message || '支付失败，请重试')
   } finally {
     paying.value = false
+  }
+}
+
+// 主动查询支付状态
+const checkPaymentStatus = async () => {
+  checking.value = true
+  try {
+    const res = await queryPayment({
+      id: orderDetail.value.id,
+      paymentType: selectedPaymentType.value
+    })
+    if (res.data && res.data.state === 3) {
+      ElMessage.success('支付成功！')
+      showPaymentCheck.value = false
+      router.replace({
+        path: '/order/detail',
+        query: { id: orderDetail.value.id }
+      })
+    } else {
+      ElMessage.warning('订单尚未支付，请在新窗口中完成付款后点击此处')
+    }
+  } catch (error) {
+    console.error('查询支付状态失败:', error)
+    ElMessage.error('查询支付状态失败')
+  } finally {
+    checking.value = false
   }
 }
 
@@ -278,8 +355,8 @@ onMounted(() => {
 
 .amount-value {
   font-size: 48px;
-  color: #f56c6c;
-  font-weight: bold;
+  color: var(--brand-primary, #4a6cf7);
+  font-weight: 700;
 }
 
 .payment-section {
@@ -328,6 +405,38 @@ onMounted(() => {
 
 .pay-btn {
   min-width: 200px;
+}
+
+.qr-code-section {
+  text-align: center;
+  padding: 20px 0;
+  border-bottom: 1px solid #ebeef5;
+  margin-bottom: 20px;
+}
+
+.qr-code-section h4 {
+  margin-bottom: 15px;
+  font-size: 16px;
+  color: #303133;
+}
+
+.qr-image {
+  border: 1px solid #ebeef5;
+  border-radius: 8px;
+  padding: 10px;
+  background: #fff;
+}
+
+.qr-hint {
+  margin-top: 12px;
+  color: #909399;
+  font-size: 13px;
+}
+
+.qr-amount {
+  margin: 8px 0 16px;
+  color: var(--brand-primary, #4a6cf7);
+  font-size: 18px;
 }
 
 @media (max-width: 767px) {

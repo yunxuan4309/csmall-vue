@@ -76,3 +76,12 @@ export function getOrderLogistics(id) {
 export function payOrder(data) {
   return gatewayHttp.post('/oms/order/pay', data)
 }
+
+/**
+ * 主动查询支付结果（支付宝/微信支付后前端轮询）
+ * @param {Object} params - { id: 订单ID, paymentType: 支付方式 }
+ * @returns {Promise}
+ */
+export function queryPayment(params) {
+  return gatewayHttp.post('/oms/order/pay/query', null, { params })
+}

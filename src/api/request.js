@@ -18,11 +18,12 @@ function createInstance(baseURL) {
   // ---- 请求拦截 ----
   instance.interceptors.request.use(
     config => {
-      // 尝试获取 token（优先 mall_token，其次 admin_token）
-      let token = localStorage.getItem('mall_token')
-      if (!token) {
-        token = localStorage.getItem('admin_token')
-      }
+      const adminToken = localStorage.getItem('admin_token')
+      const mallToken = localStorage.getItem('mall_token')
+      const isAdminPath = config.url && (config.url.startsWith('/admin') || config.url.startsWith('/pms'))
+      const token = isAdminPath
+        ? (adminToken || mallToken)
+        : (mallToken || adminToken)
       
       if (token) {
         // 如果 token 已经包含 Bearer 前缀，直接使用；否则添加前缀

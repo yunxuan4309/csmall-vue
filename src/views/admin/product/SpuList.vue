@@ -7,30 +7,29 @@
           <el-button type="primary" :icon="Plus">新增商品</el-button>
         </div>
       </template>
-      
-      <el-form :inline="true" style="margin-bottom: 20px">
+
+      <el-form :inline="true" style="margin-bottom: 20px" @submit.prevent="search">
         <el-form-item label="关键词">
-          <el-input placeholder="商品名称" clearable />
+          <el-input v-model="query.name" placeholder="商品名称" clearable />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" :icon="Search">搜索</el-button>
-          <el-button :icon="Refresh">重置</el-button>
+          <el-button type="primary" :icon="Search" @click="search">搜索</el-button>
+          <el-button :icon="Refresh" @click="reset">重置</el-button>
         </el-form-item>
       </el-form>
-      
-      <el-table :data="tableData" border stripe>
+
+      <el-table :data="tableData" border stripe v-loading="loading">
         <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="spuName" label="商品名称" />
+        <el-table-column prop="name" label="商品名称" />
         <el-table-column prop="categoryName" label="分类" width="120" />
         <el-table-column prop="brandName" label="品牌" width="120" />
         <el-table-column prop="price" label="价格" width="120">
-          <template #default="{ row }">
-            ¥{{ row.price }}
-          </template>
+          <template #default="{ row }">¥{{ row.price }}</template>
         </el-table-column>
         <el-table-column label="状态" width="100">
-          <template #default>
-            <el-tag type="success">上架</el-tag>
+          <template #default="{ row }">
+            <el-tag v-if="row.isChecked === 1" type="success">已审核</el-tag>
+            <el-tag v-else type="warning">待审核</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="200" fixed="right">
@@ -40,57 +39,53 @@
           </template>
         </el-table-column>
       </el-table>
-      
+
       <el-pagination
         style="margin-top: 20px; justify-content: flex-end"
-        :total="100"
+        :total="total"
+        v-model:current-page="query.page"
+        v-model:page-size="query.pageSize"
         :page-sizes="[10, 20, 50]"
         layout="total, sizes, prev, pager, next"
+        @current-change="fetchData"
+        @size-change="fetchData"
       />
     </el-card>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { Plus, Search, Refresh } from '@element-plus/icons-vue'
+import gatewayHttp from '@/api/request'
 
-const tableData = ref([
-  { id: 1, spuName: 'iPhone 15 Pro', categoryName: '手机', brandName: 'Apple', price: 7999 },
-  { id: 2, spuName: 'Mate 60 Pro', categoryName: '手机', brandName: '华为', price: 6999 }
-])
+const loading = ref(false)
+const tableData = ref([])
+const total = ref(0)
+
+const query = reactive({
+  name: '',
+  page: 1,
+  pageSize: 10
+})
+
+const fetchData = async () => {
+  loading.value = true
+  try {
+    const params = { page: query.page, pageSize: query.pageSize }
+    if (query.name) params.name = query.name
+    const res = await gatewayHttp.get('/pms/spu', { params })
+    tableData.value = res.data?.list || res.data?.records || []
+    total.value = res.data?.total || 0
+  } catch (e) {
+    console.error('加载商品失败', e)
+  } finally {
+    loading.value = false
+  }
+}
+
+const search = () => { query.page = 1; fetchData() }
+const reset = () => { query.name = ''; search() }
+
+onMounted(fetchData)
 </script>
-
-<style scoped>
-.page-container {
-  height: 100%;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-@media (max-width: 767px) {
-  .card-header {
-    flex-direction: column;
-    gap: 10px;
-    align-items: stretch;
-  }
-  .card-header .el-button {
-    width: 100%;
-  }
-  .el-form--inline .el-form-item {
-    margin-right: 0;
-    width: 100%;
-  }
-  .el-form--inline .el-form-item .el-input {
-    width: 100%;
-  }
-  .el-form--inline {
-    display: flex;
-    flex-direction: column;
-  }
-}
-</style>

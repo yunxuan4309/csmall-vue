@@ -7,15 +7,28 @@
           <el-button type="primary" :icon="Plus">新增分类</el-button>
         </div>
       </template>
-      
-      <el-table :data="tableData" border stripe>
+
+      <el-table
+        :data="categoryTree"
+        border stripe
+        row-key="id"
+        v-loading="loading"
+        default-expand-all
+      >
         <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="categoryName" label="分类名称" />
-        <el-table-column prop="level" label="层级" width="100" />
-        <el-table-column prop="sortOrder" label="排序" width="100" />
+        <el-table-column prop="name" label="分类名称" />
+        <el-table-column prop="depth" label="层级" width="80" />
+        <el-table-column prop="sort" label="排序" width="80" />
+        <el-table-column prop="isParent" label="父级分类" width="100">
+          <template #default="{ row }">
+            <el-tag v-if="row.isParent === 1" type="success" size="small">是</el-tag>
+            <el-tag v-else type="info" size="small">否</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column label="状态" width="100">
-          <template #default>
-            <el-tag type="success">显示</el-tag>
+          <template #default="{ row }">
+            <el-tag v-if="row.enable === 1" type="success">启用</el-tag>
+            <el-tag v-else type="danger">禁用</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="200" fixed="right">
@@ -30,13 +43,40 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
+import gatewayHttp from '@/api/request'
 
-const tableData = ref([
-  { id: 1, categoryName: '电子产品', level: 1, sortOrder: 1 },
-  { id: 2, categoryName: '服装', level: 1, sortOrder: 2 }
-])
+const loading = ref(false)
+const categoryTree = ref([])
+
+// 递归加载子分类，构建树形结构
+const loadChildren = async (parentId = 0) => {
+  const res = await gatewayHttp.get('/pms/categories/list-by-parent', {
+    params: { parentId, page: 1, pageSize: 100 }
+  })
+  const list = res.data?.list || res.data?.records || []
+  const result = []
+  for (const item of list) {
+    const node = { ...item, children: [] }
+    if (item.isParent === 1 || item.depth < 2) {
+      node.children = await loadChildren(item.id)
+    }
+    result.push(node)
+  }
+  return result
+}
+
+onMounted(async () => {
+  loading.value = true
+  try {
+    categoryTree.value = await loadChildren(0)
+  } catch (e) {
+    console.error('加载分类失败', e)
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
 <style scoped>
@@ -55,9 +95,6 @@ const tableData = ref([
     flex-direction: column;
     gap: 10px;
     align-items: stretch;
-  }
-  .card-header .el-button {
-    width: 100%;
   }
 }
 </style>

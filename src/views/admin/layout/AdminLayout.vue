@@ -205,7 +205,7 @@
       <!-- 内容区 -->
       <el-main class="main-content">
         <router-view v-slot="{ Component }">
-          <transition name="fade" mode="out-in">
+          <transition name="page-fade" mode="out-in">
             <component :is="Component" />
           </transition>
         </router-view>
@@ -286,29 +286,30 @@ const handleCommand = (command) => {
 }
 
 .sidebar {
-  background-color: #304156;
+  background-color: #1e293b;
   transition: width 0.3s;
   overflow-x: hidden;
 }
 
 .logo {
-  height: 60px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #2b3a4d;
-  color: white;
+  background-color: #15202b;
+  color: #fff;
 }
 
 .logo h3 {
   margin: 0;
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
 .el-menu {
   border-right: none;
-  background-color: #304156;
+  background-color: #1e293b;
 }
 
 :deep(.el-menu-item),
@@ -387,18 +388,7 @@ const handleCommand = (command) => {
 .mobile-page-title {
   font-size: 16px;
   font-weight: 600;
-  color: #303133;
-}
-
-/* 过渡动画 */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+  color: var(--brand-text, #303133);
 }
 
 /* 移动端适配 */

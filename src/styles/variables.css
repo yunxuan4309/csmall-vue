@@ -1,0 +1,139 @@
+/* ========================================
+   csmall-vue 全局设计变量
+   简约风格 — 中性蓝灰主题
+   ======================================== */
+
+:root {
+  /* ---- 品牌色系 ---- */
+  --brand-primary: #4a6cf7;
+  --brand-primary-light: #eef1ff;
+  --brand-primary-dark: #3b57d4;
+  --brand-text: #1e293b;
+  --brand-text-secondary: #64748b;
+  --brand-text-muted: #94a3b8;
+  --brand-bg: #f8fafc;
+  --brand-bg-white: #ffffff;
+  --brand-border: #e2e8f0;
+  --brand-border-light: #f1f5f9;
+
+  /* ---- 圆角 ---- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  /* ---- 阴影（轻量化） ---- */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+
+  /* ---- 过渡 ---- */
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ---- 字体 ---- */
+  --font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC',
+    'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+
+  /* ========================================
+     Element Plus 主题变量覆盖
+     使用 --el-* 变量让组件自动适配品牌色
+     ======================================== */
+  --el-color-primary: var(--brand-primary);
+  --el-color-primary-light-3: #7b93f9;
+  --el-color-primary-light-5: #a5b5fb;
+  --el-color-primary-light-7: #cfd8fd;
+  --el-color-primary-light-8: #e4e9fe;
+  --el-color-primary-light-9: var(--brand-primary-light);
+  --el-color-primary-dark-2: var(--brand-primary-dark);
+  --el-color-success: #10b981;
+  --el-color-warning: #f59e0b;
+  --el-color-danger: #ef4444;
+  --el-color-info: var(--brand-text-muted);
+  --el-border-radius-base: var(--radius-sm);
+  --el-border-radius-small: 4px;
+  --el-border-radius-round: 20px;
+  --el-font-family: var(--font-family);
+  --el-bg-color: var(--brand-bg);
+  --el-bg-color-overlay: var(--brand-bg-white);
+  --el-border-color: var(--brand-border);
+  --el-border-color-light: var(--brand-border-light);
+  --el-text-color-primary: var(--brand-text);
+  --el-text-color-regular: var(--brand-text-secondary);
+  --el-text-color-secondary: var(--brand-text-muted);
+  --el-fill-color: var(--brand-bg);
+  --el-fill-color-light: var(--brand-bg-white);
+  --el-box-shadow-light: var(--shadow-sm);
+  --el-box-shadow: var(--shadow-md);
+}
+
+/* ---- 全局重置（与现有 style.css 互补） ---- */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--brand-bg);
+  color: var(--brand-text);
+  line-height: 1.6;
+}
+
+/* ========================================
+   页面过渡动画 — 淡入淡出 + 微位移
+   ======================================== */
+.page-fade-enter-active {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.page-fade-leave-active {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.page-fade-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.page-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+/* ========================================
+   卡片通用样式 — 简约卡片
+   ======================================== */
+.card-clean {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--brand-border);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+  overflow: hidden;
+}
+
+.card-clean:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* ========================================
+   标题通用样式 — 简约无emoji
+   ======================================== */
+.page-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--brand-text);
+  margin: 0 0 4px 0;
+  letter-spacing: -0.02em;
+}
+
+.page-subtitle {
+  font-size: 13px;
+  color: var(--brand-text-secondary);
+  margin: 0 0 20px 0;
+}
+
+/* ========================================
+   价格样式 — 品牌色
+   ======================================== */
+.price-brand {
+  color: var(--brand-primary);
+  font-weight: 600;
+  font-size: 18px;
+}

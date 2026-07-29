@@ -1,60 +1,61 @@
 <template>
   <div class="dashboard">
-    <h2>欢迎使用后台管理系统</h2>
-    
-    <el-row :gutter="20" style="margin-top: 30px">
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
+    <h2 class="page-title">仪表盘</h2>
+    <p class="page-subtitle">欢迎回来{{ userStore.userInfo?.nickname ? '，' + userStore.userInfo.nickname : '' }}</p>
+
+    <el-row :gutter="20" style="margin-top: 24px">
+      <el-col :xs="12" :sm="6">
+        <el-card shadow="never" class="stat-card card-clean">
           <div class="stat-content">
-            <el-icon class="stat-icon" color="#409eff"><User /></el-icon>
+            <el-icon class="stat-icon" color="var(--brand-primary)"><User /></el-icon>
             <div class="stat-info">
-              <div class="stat-value">1,234</div>
+              <div class="stat-value">{{ dashboard.totalUsers }}</div>
               <div class="stat-label">用户总数</div>
             </div>
           </div>
         </el-card>
       </el-col>
-      
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
+
+      <el-col :xs="12" :sm="6">
+        <el-card shadow="never" class="stat-card card-clean">
           <div class="stat-content">
-            <el-icon class="stat-icon" color="#67c23a"><Goods /></el-icon>
+            <el-icon class="stat-icon" color="var(--el-color-success)"><Goods /></el-icon>
             <div class="stat-info">
-              <div class="stat-value">567</div>
-              <div class="stat-label">商品总数</div>
+              <div class="stat-value">{{ dashboard.todayNewUsers }}</div>
+              <div class="stat-label">今日新增用户</div>
             </div>
           </div>
         </el-card>
       </el-col>
-      
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
+
+      <el-col :xs="12" :sm="6">
+        <el-card shadow="never" class="stat-card card-clean">
           <div class="stat-content">
-            <el-icon class="stat-icon" color="#e6a23c"><List /></el-icon>
+            <el-icon class="stat-icon" color="var(--el-color-warning)"><List /></el-icon>
             <div class="stat-info">
-              <div class="stat-value">890</div>
-              <div class="stat-label">订单总数</div>
+              <div class="stat-value">{{ dashboard.pendingOrders }}</div>
+              <div class="stat-label">待处理订单</div>
             </div>
           </div>
         </el-card>
       </el-col>
-      
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
+
+      <el-col :xs="12" :sm="6">
+        <el-card shadow="never" class="stat-card card-clean">
           <div class="stat-content">
-            <el-icon class="stat-icon" color="#f56c6c"><Money /></el-icon>
+            <el-icon class="stat-icon" color="var(--el-color-danger)"><Money /></el-icon>
             <div class="stat-info">
-              <div class="stat-value">¥12,345</div>
+              <div class="stat-value">¥{{ dashboard.todayRevenue || '0.00' }}</div>
               <div class="stat-label">今日销售额</div>
             </div>
           </div>
         </el-card>
       </el-col>
     </el-row>
-    
+
     <el-row :gutter="20" style="margin-top: 20px">
-      <el-col :span="12">
-        <el-card>
+      <el-col :xs="24" :sm="12">
+        <el-card shadow="never" class="card-clean">
           <template #header>
             <span>快捷操作</span>
           </template>
@@ -74,9 +75,9 @@
           </div>
         </el-card>
       </el-col>
-      
-      <el-col :span="12">
-        <el-card>
+
+      <el-col :xs="24" :sm="12">
+        <el-card shadow="never" class="card-clean">
           <template #header>
             <span>系统信息</span>
           </template>
@@ -97,31 +98,55 @@ import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/store/user'
 import { User, Goods, List, Money } from '@element-plus/icons-vue'
 import { formatDate } from '@/utils/format'
+import { getDashboard } from '@/api/sso'
 
 const userStore = useUserStore()
 const currentTime = ref(formatDate(new Date()))
 
+const dashboard = ref({
+  totalUsers: 0,
+  todayNewUsers: 0,
+  todayOrders: 0,
+  todayRevenue: 0,
+  pendingOrders: 0,
+  weeklyTrend: []
+})
+
+const loading = ref(true)
+
+const fetchDashboard = async () => {
+  try {
+    const res = await getDashboard()
+    if (res.data) {
+      dashboard.value = res.data
+    }
+  } catch (e) {
+    console.error('获取仪表盘数据失败', e)
+  } finally {
+    loading.value = false
+  }
+}
+
 onMounted(() => {
-  // 如果没有用户信息，获取一下
   if (!userStore.userInfo) {
     userStore.fetchUserInfo()
   }
+  fetchDashboard()
 })
 </script>
 
 <style scoped>
 .dashboard h2 {
   margin: 0;
-  color: #333;
 }
 
 .stat-card {
-  cursor: pointer;
-  transition: transform 0.3s;
+  cursor: default;
+  transition: all var(--transition-fast, 0.2s);
 }
 
 .stat-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-2px);
 }
 
 .stat-content {
@@ -131,7 +156,7 @@ onMounted(() => {
 }
 
 .stat-icon {
-  font-size: 48px;
+  font-size: 40px;
 }
 
 .stat-info {
@@ -139,15 +164,15 @@ onMounted(() => {
 }
 
 .stat-value {
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 5px;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--brand-text, #333);
+  margin-bottom: 4px;
 }
 
 .stat-label {
-  font-size: 14px;
-  color: #999;
+  font-size: 13px;
+  color: var(--brand-text-secondary, #999);
 }
 
 .quick-actions {
@@ -158,7 +183,7 @@ onMounted(() => {
 
 .system-info p {
   margin: 10px 0;
-  color: #606266;
+  color: var(--brand-text-secondary, #606266);
   line-height: 1.6;
 }
 
@@ -183,9 +208,6 @@ onMounted(() => {
   }
   .stat-value {
     font-size: 18px;
-  }
-  .stat-label {
-    font-size: 12px;
   }
   .quick-actions {
     flex-direction: column;

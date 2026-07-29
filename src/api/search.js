@@ -1,51 +1,59 @@
 import gatewayHttp from './request'
 
-/**
- * 搜索商品
- * @param {Object} params - 搜索参数
- * @param {string} params.keyword - 搜索关键词
- * @param {number} params.page - 页码
- * @param {number} params.pageSize - 每页数量
- * @param {number} params.categoryId - 分类ID（可选）
- * @param {number} params.brandId - 品牌ID（可选）
- * @param {string} params.sort - 排序方式（可选）
- * @returns {Promise} 返回搜索结果
- */
-export function searchProducts(params) {
-  return gatewayHttp.get('/search/products', { params })
-}
+// ==================== AI 语义搜索 ====================
 
 /**
- * 获取搜索建议
+ * AI 语义搜索 — ES 召回 Top-15 → AI 按意图重排序 → 返回 Top-5 + 解释
  * @param {string} keyword - 搜索关键词
+ * @param {number} page - 页码
+ * @param {number} pageSize - 每页数量
  * @returns {Promise}
+ */
+export function searchProducts(keyword, page = 1, pageSize = 10) {
+  return gatewayHttp.post('/ai/search', { keyword, page, pageSize })
+}
+
+// ==================== 搜索自动补全 ====================
+
+/**
+ * 获取搜索补全建议（ES Completion Suggester，<50ms）
+ * @param {string} keyword - 部分搜索词
+ * @returns {Promise<{data: {suggestions: string[]}}>}
  */
 export function getSearchSuggestions(keyword) {
-  return gatewayHttp.get('/search/suggestions', {
-    params: { keyword }
-  })
+  return gatewayHttp.get('/ai/search/suggest', { params: { keyword } })
 }
 
-/**
- * 获取热门搜索词
- * @returns {Promise}
- */
-export function getHotSearchKeywords() {
-  return gatewayHttp.get('/search/hot-keywords')
-}
+// ==================== 相关商品推荐 ====================
 
 /**
- * 获取搜索历史记录
- * @returns {Promise}
+ * 相关商品推荐（ES more_like_this，不消耗 AI Token）
+ * @param {number} spuId - 当前商品 SPU ID
+ * @returns {Promise<{data: RelatedProductVO[]}>}
  */
+export function getRelatedProducts(spuId) {
+  return gatewayHttp.get(`/ai/product/${spuId}/related`)
+}
+
+// ==================== 搜索历史（本地 localStorage） ====================
+
+const HISTORY_KEY = 'search_history'
+const MAX_HISTORY = 10
+
 export function getSearchHistory() {
-  return gatewayHttp.get('/search/history')
+  try {
+    return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]')
+  } catch { return [] }
 }
 
-/**
- * 清除搜索历史记录
- * @returns {Promise}
- */
+export function addSearchHistory(keyword) {
+  let list = getSearchHistory()
+  list = list.filter(k => k !== keyword)
+  list.unshift(keyword)
+  if (list.length > MAX_HISTORY) list.pop()
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(list))
+}
+
 export function clearSearchHistory() {
-  return gatewayHttp.delete('/search/history')
+  localStorage.setItem(HISTORY_KEY, '[]')
 }

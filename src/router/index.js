@@ -77,6 +77,13 @@ const routes = [
       }
     ]
   },
+  // 支付结果页（支付宝/微信支付后回调）
+  {
+    path: '/pay-result',
+    name: 'PayResult',
+    component: () => import('@/views/front/order/PayResult.vue'),
+    meta: { title: '支付结果' }
+  },
   // 统一登录入口（选择管理员或用户登录）
   {
     path: '/login',

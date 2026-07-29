@@ -1,11 +1,13 @@
 <template>
   <div class="seckill-list-page">
-    <el-card>
+    <el-card shadow="never" class="card-clean">
       <!-- 页面标题 -->
-      <div class="page-header">
-        <h2>⚡ 秒杀专区</h2>
-        <p class="subtitle">限时特惠，先到先得</p>
-      </div>
+      <template #header>
+        <div class="page-header">
+          <h2 class="page-title" style="margin:0">秒杀专区</h2>
+          <p class="page-subtitle" style="margin:0">限时特惠，先到先得</p>
+        </div>
+      </template>
 
       <!-- 秒杀商品列表 -->
       <div v-loading="loading" class="seckill-grid">
@@ -19,6 +21,10 @@
             :lg="6"
           >
             <el-card class="seckill-card" shadow="hover">
+              <!-- 已购买遮罩 -->
+              <div v-if="product.purchased" class="purchased-overlay">
+                <span>已购买</span>
+              </div>
               <!-- 倒计时标签 -->
               <div class="time-badge">
                 <template v-if="getSeckillStatus(product) === 'not_started'">
@@ -75,7 +81,15 @@
                 <!-- 操作按钮 -->
                 <div class="action-buttons">
                   <el-button
-                    v-if="getSeckillStatus(product) === 'ongoing' && product.url"
+                    v-if="product.purchased"
+                    type="info"
+                    disabled
+                    class="btn-purchased"
+                  >
+                    已购买
+                  </el-button>
+                  <el-button
+                    v-else-if="getSeckillStatus(product) === 'ongoing' && product.url"
                     type="danger"
                     class="btn-flash"
                     @click="goToSeckillDetail(product.id)"
@@ -125,13 +139,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { Picture, Lightning, Search } from '@element-plus/icons-vue'
 import { getSeckillSpuList } from '@/api/seckill'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
+const route = useRoute()
 
 const loading = ref(false)
 const productList = ref([])
@@ -223,6 +238,11 @@ const getFirstImage = (pictures) => {
 
 // 跳转到秒杀详情
 const goToSeckillDetail = (spuId) => {
+  const product = productList.value.find(p => p.id === spuId)
+  if (product && product.purchased) {
+    ElMessage.warning('您已购买过该商品，去看看其他秒杀商品吧')
+    return
+  }
   router.push(`/seckill/${spuId}`)
 }
 
@@ -244,6 +264,11 @@ onMounted(() => {
   startCountdown()
 })
 
+// 从商品详情返回时自动刷新"已购买"状态
+watch(() => route.path, (path) => {
+  if (path === '/seckill') fetchSeckillList()
+})
+
 onUnmounted(() => {
   if (timer) {
     clearInterval(timer)
@@ -258,22 +283,9 @@ onUnmounted(() => {
 }
 
 .page-header {
-  text-align: center;
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid #f56c6c;
-}
-
-.page-header h2 {
-  font-size: 32px;
-  color: #f56c6c;
-  margin: 0 0 10px 0;
-}
-
-.subtitle {
-  font-size: 14px;
-  color: #909399;
-  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
 }
 
 .seckill-grid {
@@ -283,11 +295,35 @@ onUnmounted(() => {
 .seckill-card {
   margin-bottom: 20px;
   position: relative;
-  transition: transform 0.3s;
+  border-radius: var(--radius-md, 10px);
+  border: 1px solid var(--brand-border, #e2e8f0);
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.04));
+  transition: all var(--transition-fast, 0.2s);
+  overflow: hidden;
 }
 
 .seckill-card:hover {
-  transform: translateY(-5px);
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
+  transform: translateY(-2px);
+}
+
+.purchased-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md, 10px);
+}
+.purchased-overlay span {
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  border: 2px solid #fff;
+  padding: 8px 24px;
+  border-radius: 6px;
 }
 
 .time-badge {
@@ -314,6 +350,7 @@ onUnmounted(() => {
   height: 200px;
   overflow: hidden;
   cursor: pointer;
+  border-radius: var(--radius-md, 10px) var(--radius-md, 10px) 0 0;
 }
 
 .image-slot {
@@ -333,7 +370,8 @@ onUnmounted(() => {
 
 .product-title {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
+  color: var(--brand-text, #1e293b);
   margin: 0 0 10px 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -346,7 +384,7 @@ onUnmounted(() => {
 }
 
 .product-title:hover {
-  color: #409eff;
+  color: var(--brand-primary, #4a6cf7);
 }
 
 .price-section {
@@ -361,9 +399,9 @@ onUnmounted(() => {
 }
 
 .seckill-price {
-  font-size: 24px;
-  color: #f56c6c;
-  font-weight: 600;
+  font-size: 22px;
+  color: var(--brand-primary, #4a6cf7);
+  font-weight: 700;
 }
 
 .original-price {

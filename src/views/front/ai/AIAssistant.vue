@@ -122,6 +122,18 @@
         </div>
       </div>
 
+      <!-- 思考过程 -->
+      <transition name="el-fade-in-linear">
+        <div v-if="thinkingSteps.length > 0" class="thinking-bar">
+          <div class="thinking-title">
+            <el-icon class="is-loading"><Loading /></el-icon> AI 正在分析您的问题...
+          </div>
+          <div v-for="(step, i) in thinkingSteps" :key="i" class="thinking-step">
+            {{ step }}
+          </div>
+        </div>
+      </transition>
+
       <!-- 输入区域 -->
       <div class="input-area">
         <el-input
@@ -276,6 +288,7 @@ const messages = ref([])
 const loading = ref(false)
 const includeProducts = ref(true)
 const messageAreaRef = ref(null)
+const thinkingSteps = ref([])
 
 // 建议问题
 const suggestions = [
@@ -320,31 +333,47 @@ async function sendQuestion() {
   if (!q || loading.value) return
 
   messages.value.push({ type: 'user', text: q })
-  const aiMsg = { type: 'ai', text: '', products: [] }
-  messages.value.push(aiMsg)
+  messages.value.push({ type: 'ai', text: '', products: [] })
+  const aiMsgIndex = messages.value.length - 1
   question.value = ''
   loading.value = true
   scrollToBottom()
 
+  let pendingProducts = null
+
   streamChatMessage(sessionId.value, q, {
+    onThinking(step) {
+      thinkingSteps.value.push(step)
+      nextTick(scrollToBottom)
+    },
     onSessionId(sid) {
       sessionId.value = sid
     },
     onProducts(products) {
-      aiMsg.products = products
+      pendingProducts = products
     },
-    onChunk(chunk) {
-      aiMsg.text += chunk
+    async onChunk(chunk) {
+      messages.value[aiMsgIndex].text += chunk
+      await new Promise(r => setTimeout(r, 20))
       nextTick(scrollToBottom)
     },
     onDone() {
       loading.value = false
-      if (!aiMsg.text) aiMsg.text = '好的，已了解。'
+      thinkingSteps.value = []
+      if (pendingProducts) {
+        messages.value[aiMsgIndex].products = pendingProducts
+      }
+      if (!messages.value[aiMsgIndex].text) {
+        messages.value[aiMsgIndex].text = '好的，已了解。'
+      }
       nextTick(scrollToBottom)
     },
     onError(err) {
       loading.value = false
-      if (!aiMsg.text) aiMsg.text = '抱歉，AI服务暂时不可用，请稍后重试。'
+      thinkingSteps.value = []
+      if (!messages.value[aiMsgIndex].text) {
+        messages.value[aiMsgIndex].text = '抱歉，AI服务暂时不可用，请稍后重试。'
+      }
     }
   })
 }
@@ -437,13 +466,13 @@ defineExpose({ addToCompare })
 
 <style scoped>
 .ai-assistant-page {
-  max-width: 1000px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 20px;
 }
 
 .chat-container {
-  min-height: 500px;
+  min-height: 750px;
   display: flex;
   flex-direction: column;
 }
@@ -462,8 +491,8 @@ defineExpose({ addToCompare })
 
 .message-area {
   flex: 1;
-  min-height: 400px;
-  max-height: 500px;
+  min-height: 650px;
+  max-height: 800px;
   overflow-y: auto;
   padding: 20px;
   background: #f5f7fa;
@@ -638,6 +667,31 @@ defineExpose({ addToCompare })
 
 .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
 .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+.thinking-bar {
+  padding: 10px 16px;
+  margin: 0 0 12px 0;
+  background: #f0f9ff;
+  border: 1px solid #b3d8ff;
+  border-radius: 8px;
+  font-size: 13px;
+  max-height: 140px;
+  overflow-y: auto;
+}
+.thinking-title {
+  color: #409EFF;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.thinking-step {
+  color: #606266;
+  padding: 2px 0;
+  font-family: monospace;
+  font-size: 12px;
+}
 
 @keyframes bounce {
   0%, 80%, 100% { transform: scale(0); }

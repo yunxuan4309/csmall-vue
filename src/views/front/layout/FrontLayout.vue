@@ -3,23 +3,31 @@
     <!-- 顶部导航栏 -->
     <el-header class="header">
       <div class="header-content">
-        <!-- 左侧：Logo 和管理员入口 -->
+        <!-- 左侧：Logo -->
         <div class="left-section">
           <div class="logo" @click="$router.push('/')">
-            <h2>商城首页</h2>
+            <h2>CoolShark</h2>
           </div>
-          <el-button 
-            type="primary" 
-            link 
-            size="small"
-            class="admin-link"
-            @click="goToAdminLogin"
-          >
-            <el-icon><Setting /></el-icon>
-            管理员登录
-          </el-button>
         </div>
-        
+
+        <!-- 搜索框 -->
+        <div class="search-box">
+          <el-autocomplete
+            v-model="searchKeyword"
+            :fetch-suggestions="fetchSuggestions"
+            :trigger-on-focus="false"
+            placeholder="搜索商品，如：学生党高性价比手机"
+            clearable
+            popper-class="search-suggest-popper"
+            @select="onSuggestSelect"
+            @keyup.enter="onSearch"
+          >
+            <template #prefix>
+              <el-icon><Search /></el-icon>
+            </template>
+          </el-autocomplete>
+        </div>
+
         <!-- 桌面端导航 -->
         <el-menu
           :default-active="activeMenu"
@@ -83,21 +91,34 @@
             </el-dropdown>
           </template>
           <template v-else>
-            <el-button type="primary" @click="$router.push('/user/login')">登录</el-button>
+            <el-button @click="$router.push('/user/login')">登录</el-button>
             <el-button @click="$router.push('/register')">注册</el-button>
           </template>
+          <el-button
+            type="primary"
+            link
+            size="small"
+            class="admin-link"
+            @click="goToAdminLogin"
+          >
+            <el-icon><Setting /></el-icon>
+          </el-button>
         </div>
       </div>
     </el-header>
 
     <!-- 主内容区 -->
     <el-main class="main-content">
-      <router-view />
+      <router-view v-slot="{ Component }">
+        <transition name="page-fade" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </router-view>
     </el-main>
 
     <!-- 底部 -->
     <el-footer class="footer">
-      <p>© 2026 商城系统. All rights reserved.</p>
+      <p>&copy; 2026 CoolShark. All rights reserved.</p>
     </el-footer>
   </div>
 </template>
@@ -105,16 +126,53 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { User, ArrowDown, Setting, Menu } from '@element-plus/icons-vue'
+import { User, ArrowDown, Setting, Menu, Search } from '@element-plus/icons-vue'
 import { useFrontUserStore } from '@/store/frontUser'
+import { getSearchSuggestions } from '@/api/search'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useFrontUserStore()
 
 const mobileMenuVisible = ref(false)
+const searchKeyword = ref('')
 
 const activeMenu = computed(() => route.path)
+
+// 搜索自动补全
+let suggestTimer = null
+const fetchSuggestions = (queryString, callback) => {
+  if (!queryString || queryString.trim().length < 1) {
+    callback([])
+    return
+  }
+  clearTimeout(suggestTimer)
+  suggestTimer = setTimeout(async () => {
+    try {
+      const res = await getSearchSuggestions(queryString.trim())
+      const list = (res.data?.suggestions || []).map(s => ({ value: s }))
+      callback(list)
+    } catch {
+      callback([])
+    }
+  }, 200)
+}
+
+const onSuggestSelect = (item) => {
+  searchKeyword.value = item.value
+  doSearch()
+}
+
+const onSearch = () => {
+  doSearch()
+}
+
+const doSearch = () => {
+  const kw = searchKeyword.value.trim()
+  if (!kw) return
+  router.push({ path: '/products', query: { keyword: kw } })
+  searchKeyword.value = ''
+}
 
 const handleMenuSelect = (index) => {
   if (index !== route.path) {
@@ -130,19 +188,16 @@ const handleCommand = (command) => {
   }
 }
 
-// 跳转到管理员登录
 const goToAdminLogin = () => {
   router.push('/admin/login')
 }
 
-// 组件挂载时，如果有 token 则获取用户信息
 onMounted(async () => {
   if (userStore.token && !userStore.userInfo) {
     try {
       await userStore.fetchUserInfo()
     } catch (error) {
       console.warn('获取用户信息失败，请检查后端SSO服务是否启动:', error)
-      // 不阻断页面渲染，用户可以继续使用
     }
   }
 })
@@ -157,7 +212,7 @@ onMounted(async () => {
 
 .header {
   background-color: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid var(--brand-border-light, #f1f5f9);
   padding: 0;
 }
 
@@ -178,32 +233,28 @@ onMounted(async () => {
 
 .logo {
   cursor: pointer;
-  color: #409eff;
+  color: var(--brand-text, #1e293b);
+  user-select: none;
 }
 
 .logo h2 {
   margin: 0;
-  font-size: 24px;
-}
-
-.admin-link {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 13px;
-  padding: 4px 8px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }
 
 .nav-menu {
   flex: 1;
   border-bottom: none;
   margin-left: 40px;
+  font-weight: 400;
 }
 
 .user-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .user-info {
@@ -211,22 +262,51 @@ onMounted(async () => {
   align-items: center;
   gap: 5px;
   cursor: pointer;
-  padding: 8px 12px;
-  border-radius: 4px;
-  transition: background-color 0.3s;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm, 6px);
+  transition: background-color var(--transition-fast, 0.2s);
+  color: var(--brand-text-secondary, #64748b);
+  font-size: 14px;
 }
 
 .user-info:hover {
+  background-color: var(--brand-bg, #f8fafc);
+}
+
+.admin-link {
+  font-size: 16px;
+  color: var(--brand-text-muted, #94a3b8);
+  padding: 4px;
+}
+
+.admin-link:hover {
+  color: var(--brand-primary, #4a6cf7);
+}
+
+.search-box {
+  flex: 1;
+  max-width: 360px;
+  margin: 0 24px;
+}
+
+.search-box :deep(.el-input__wrapper) {
+  border-radius: 20px;
   background-color: #f5f7fa;
+}
+
+@media (max-width: 767px) {
+  .search-box {
+    max-width: 200px;
+    margin: 0 8px;
+  }
 }
 
 .main-content {
   flex: 1;
-  background-color: #f5f7fa;
+  background-color: var(--brand-bg, #f8fafc);
   padding: 20px;
 }
 
-/* 桌面端：主内容区宽度限制 */
 @media (min-width: 768px) {
   .main-content {
     padding: 24px 40px;
@@ -239,12 +319,10 @@ onMounted(async () => {
   }
 }
 
-/* 移动端汉堡菜单按钮 */
 .mobile-menu-btn {
   display: none;
 }
 
-/* 平板端：压缩导航间距 */
 @media (min-width: 768px) and (max-width: 1199px) {
   .nav-menu .el-menu-item {
     font-size: 13px;
@@ -288,6 +366,8 @@ onMounted(async () => {
   background-color: #fff;
   text-align: center;
   padding: 20px;
-  color: #909399;
+  color: var(--brand-text-muted, #94a3b8);
+  border-top: 1px solid var(--brand-border-light, #f1f5f9);
+  font-size: 13px;
 }
 </style>

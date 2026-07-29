@@ -97,7 +97,7 @@
       <div class="payment-section">
         <h4>支付方式</h4>
         <el-radio-group v-model="paymentType">
-          <el-radio :value="1">微信支付</el-radio>
+          <el-radio :value="1" disabled>微信支付 <el-tag size="small" type="info">未开放</el-tag></el-radio>
           <el-radio :value="2">支付宝</el-radio>
           <el-radio :value="0">银联</el-radio>
         </el-radio-group>
@@ -156,25 +156,25 @@ const loading = ref(false)
 const submitting = ref(false)
 const addressFormRef = ref(null)
 
-// 收货地址表单
+// 收货地址表单（预填测试地址）
 const addressForm = ref({
-  contactName: '',
-  mobilePhone: '',
+  contactName: '张三',
+  mobilePhone: '13800138000',
   telephone: '',
-  provinceCode: '',
-  provinceName: '',
-  cityCode: '',
-  cityName: '',
-  districtCode: '',
-  districtName: '',
+  provinceCode: '110000',
+  provinceName: '北京市',
+  cityCode: '110100',
+  cityName: '北京市',
+  districtCode: '110101',
+  districtName: '东城区',
   streetCode: '',
-  streetName: '',
-  detailedAddress: '',
+  streetName: '中关村街道',
+  detailedAddress: '海淀中街15号远中悦莱大厦',
   tag: '家'
 })
 
-// 省市区数据（包含代码）
-const selectedRegion = ref([])
+// 省市区级联默认选中北京-北京-东城区
+const selectedRegion = ref(['110000', '110100', '110101'])
 const regionOptions = ref([
   {
     code: '110000',
@@ -516,7 +516,7 @@ const addressRules = {
 const orderItems = ref([])
 
 // 支付方式
-const paymentType = ref(1)
+const paymentType = ref(2)
 
 // 运费和优惠
 const freight = ref(0)

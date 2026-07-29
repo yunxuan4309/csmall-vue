@@ -1,6 +1,6 @@
 <template>
   <div class="cart-page">
-    <el-card v-if="cartStore.cartItems.length > 0" class="cart-container">
+    <el-card v-if="cartStore.cartItems.length > 0" class="cart-container card-clean">
       <template #header>
         <div class="cart-header">
           <h3>购物车 ({{ cartStore.cartItems.length }})</h3>
@@ -277,7 +277,7 @@ onMounted(async () => {
 
 .item-price {
   font-size: 18px;
-  color: #f56c6c;
+  color: var(--brand-primary, #4a6cf7);
   font-weight: 600;
 }
 
@@ -289,7 +289,7 @@ onMounted(async () => {
   width: 120px;
   text-align: right;
   font-size: 18px;
-  color: #f56c6c;
+  color: var(--brand-primary, #4a6cf7);
   font-weight: 600;
   margin-right: 20px;
 }
@@ -383,7 +383,7 @@ onMounted(async () => {
 
 .total-price .price {
   font-size: 24px;
-  color: #f56c6c;
+  color: var(--brand-primary, #4a6cf7);
   font-weight: 600;
 }
 </style>

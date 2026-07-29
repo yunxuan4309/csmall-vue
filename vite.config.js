@@ -2,7 +2,11 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
 
-// https://vite.dev/config/
+function spaBypass(req) {
+  const accept = req.headers.accept || ''
+  if (accept.includes('text/html')) return '/index.html'
+}
+
 export default defineConfig({
   plugins: [vue()],
   resolve: {
@@ -12,16 +16,17 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/sso': 'http://localhost:10087',
-      '/front': 'http://localhost:10087',
-      '/oms': 'http://localhost:10087',
-      '/search': 'http://localhost:10087',
-      '/resource': 'http://localhost:10087',
-      '/seckill': 'http://localhost:10087',
-      '/admin': 'http://localhost:10087',
-      '/user': 'http://localhost:10087',
-      '/ums': 'http://localhost:10087',
-      '/ai': 'http://localhost:10087',
+      '/sso':      { target: 'http://localhost:10087', bypass: spaBypass },
+      '/front':    { target: 'http://localhost:10087', bypass: spaBypass },
+      '/oms':      { target: 'http://localhost:10087', bypass: spaBypass },
+      '/search':   { target: 'http://localhost:10087', bypass: spaBypass },
+      '/resource': { target: 'http://localhost:10087', bypass: spaBypass },
+      '/seckill':  { target: 'http://localhost:10087', bypass: spaBypass },
+      '/user':     { target: 'http://localhost:10087', bypass: spaBypass },
+      '/ums':      { target: 'http://localhost:10087', bypass: spaBypass },
+      '/ai':       { target: 'http://localhost:10010', bypass: spaBypass },  // 直连 mall-ai，避免 Gateway 缓冲 SSE 流
+      '/pms':      { target: 'http://localhost:10087', bypass: spaBypass },
+      '/admin':    { target: 'http://localhost:10087', bypass: spaBypass },
     }
   }
 })

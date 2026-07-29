@@ -225,7 +225,7 @@
         <el-form-item label="支付方式" prop="paymentType">
           <el-radio-group v-model="orderForm.paymentType">
             <el-radio :value="0">银联</el-radio>
-            <el-radio :value="1">微信</el-radio>
+            <el-radio :value="1" disabled>微信 <el-tag size="small" type="info">未开放</el-tag></el-radio>
             <el-radio :value="2">支付宝</el-radio>
           </el-radio-group>
         </el-form-item>
@@ -298,23 +298,23 @@ const seckillStatus = ref('not_started')
 // 倒计时定时器
 let timer = null
 
-// 订单表单
+// 订单表单（预填测试地址）
 const orderFormRef = ref(null)
 const orderForm = ref({
-  contactName: '',
-  mobilePhone: '',
+  contactName: '张三',
+  mobilePhone: '13800138000',
   telephone: '',
-  provinceCode: '',
-  provinceName: '',
-  cityCode: '',
-  cityName: '',
-  districtCode: '',
-  districtName: '',
+  provinceCode: '110000',
+  provinceName: '北京市',
+  cityCode: '110100',
+  cityName: '北京市',
+  districtCode: '110101',
+  districtName: '东城区',
   streetCode: '',
-  streetName: '',
-  detailedAddress: '',
+  streetName: '中关村街道',
+  detailedAddress: '海淀中街15号远中悦莱大厦',
   tag: '家',
-  paymentType: 1,
+  paymentType: 2,
   amountOfOriginalPrice: 0,
   amountOfFreight: 0,
   amountOfDiscount: 0,
@@ -322,8 +322,8 @@ const orderForm = ref({
   quantity: 1
 })
 
-// 省市区级联选择
-const selectedRegion = ref([])
+// 省市区级联默认选中北京-北京-东城区
+const selectedRegion = ref(['110000', '110100', '110101'])
 
 // 省市区数据（包含代码）
 const regionOptions = ref([
