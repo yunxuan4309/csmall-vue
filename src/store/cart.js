@@ -15,7 +15,7 @@ export const useCartStore = defineStore('cart', () => {
   const fetchCartList = async () => {
     try {
       const res = await getCartList()
-      cartItems.value = res.data.list || []
+      cartItems.value = (res.data.list || []).sort((a, b) => (b.id || 0) - (a.id || 0))
       totalCount.value = res.data.total || 0
       // 默认全选
       selectedIds.value = cartItems.value.map(item => item.id)

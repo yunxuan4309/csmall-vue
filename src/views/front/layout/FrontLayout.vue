@@ -26,6 +26,9 @@
               <el-icon><Search /></el-icon>
             </template>
           </el-autocomplete>
+          <el-button class="search-btn" type="primary" size="small" @click="onSearch">
+            <el-icon><Search /></el-icon>
+          </el-button>
         </div>
 
         <!-- 桌面端导航 -->
@@ -111,7 +114,9 @@
     <el-main class="main-content">
       <router-view v-slot="{ Component }">
         <transition name="page-fade" mode="out-in">
-          <component :is="Component" />
+          <keep-alive :include="cachedViews">
+            <component :is="Component" />
+          </keep-alive>
         </transition>
       </router-view>
     </el-main>
@@ -136,6 +141,8 @@ const userStore = useFrontUserStore()
 
 const mobileMenuVisible = ref(false)
 const searchKeyword = ref('')
+// keep-alive 缓存列表页，离开再回来秒开
+const cachedViews = ['ProductList', 'SeckillList']
 
 const activeMenu = computed(() => route.path)
 
@@ -285,13 +292,28 @@ onMounted(async () => {
 
 .search-box {
   flex: 1;
-  max-width: 360px;
+  max-width: 420px;
   margin: 0 24px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.search-box :deep(.el-autocomplete) {
+  flex: 1;
 }
 
 .search-box :deep(.el-input__wrapper) {
   border-radius: 20px;
   background-color: #f5f7fa;
+}
+
+.search-btn {
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  flex-shrink: 0;
 }
 
 @media (max-width: 767px) {

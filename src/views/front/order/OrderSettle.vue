@@ -97,9 +97,9 @@
       <div class="payment-section">
         <h4>支付方式</h4>
         <el-radio-group v-model="paymentType">
-          <el-radio :value="1" disabled>微信支付 <el-tag size="small" type="info">未开放</el-tag></el-radio>
           <el-radio :value="2">支付宝</el-radio>
-          <el-radio :value="0">银联</el-radio>
+          <el-radio :value="1" disabled>微信支付 <el-tag size="small" type="info">未开放</el-tag></el-radio>
+          <el-radio :value="0" disabled>银联 <el-tag size="small" type="info">未开放</el-tag></el-radio>
         </el-radio-group>
       </div>
 

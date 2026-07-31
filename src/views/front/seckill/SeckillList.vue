@@ -139,6 +139,7 @@
 </template>
 
 <script setup>
+defineOptions({ name: 'SeckillList' })
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Picture, Lightning, Search } from '@element-plus/icons-vue'
@@ -225,15 +226,22 @@ const getDiscount = (originalPrice, seckillPrice) => {
   return discount.toFixed(1)
 }
 
-// 获取第一张图片
+// 获取第一张图片（相对路径补全为绝对路径）
 const getFirstImage = (pictures) => {
   if (!pictures) return ''
+  let url
   try {
     const arr = JSON.parse(pictures)
-    return arr[0] || ''
+    url = arr[0] || ''
   } catch {
-    return pictures
+    url = pictures
   }
+  if (!url) return ''
+  // 相对路径补全 base URL，兼容开发/生产环境
+  if (!url.startsWith('http')) {
+    url = window.location.origin + '/' + url.replace(/^\//, '')
+  }
+  return url
 }
 
 // 跳转到秒杀详情

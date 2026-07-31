@@ -3,7 +3,7 @@ import gatewayHttp from './request'
 // ==================== AI 商品对比 ====================
 
 export function compareProducts(spuIds) {
-  return gatewayHttp.post('/ai/compare', spuIds)
+  return gatewayHttp.post('/ai/compare', { spuIds })
 }
 
 // ==================== RAG 商品问答 ====================
@@ -22,7 +22,11 @@ export function askQuestion(question) {
  */
 export async function streamChatMessage(sessionId, message, callbacks) {
   const controller = new AbortController()
-  const token = localStorage.getItem('mall_token') || localStorage.getItem('admin_token')
+  const rawToken = localStorage.getItem('mall_token') || localStorage.getItem('admin_token')
+  // 与 axios 拦截器保持一致：确保带 Bearer 前缀
+  const token = rawToken
+    ? (rawToken.startsWith('Bearer ') ? rawToken : `Bearer ${rawToken}`)
+    : ''
 
   const streamUrl = import.meta.env.DEV
     ? 'http://localhost:10010/ai/chat/stream'
@@ -33,7 +37,7 @@ export async function streamChatMessage(sessionId, message, callbacks) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': token || ''
+        'Authorization': token
       },
       body: JSON.stringify({ sessionId, message }),
       signal: controller.signal

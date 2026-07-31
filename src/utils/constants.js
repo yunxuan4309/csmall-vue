@@ -80,5 +80,5 @@ export const REGEX_NICKNAME = /^.{2,16}$/
 /** 邮箱正则 */
 export const REGEX_EMAIL = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
 
-/** 手机号正则：11位手机号，1开头 */
-export const REGEX_PHONE = /^1[34589]\d{9}$/
+/** 手机号正则：11位手机号，1开头，覆盖 13~19 全号段 */
+export const REGEX_PHONE = /^1[3-9]\d{9}$/

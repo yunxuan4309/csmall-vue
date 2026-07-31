@@ -46,6 +46,13 @@
               对比 ({{ compareCount }})
             </el-button>
             <el-button
+              v-if="compareCount > 0"
+              size="small"
+              @click="clearCompare"
+            >
+              清空对比
+            </el-button>
+            <el-button
               type="danger"
               size="small"
               circle
@@ -376,7 +383,7 @@ async function sendQuestion() {
         messages.value[aiMsgIndex].products = pendingProducts
       }
       if (!messages.value[aiMsgIndex].text) {
-        messages.value[aiMsgIndex].text = '好的，已了解。'
+        messages.value[aiMsgIndex].text = 'AI 未返回有效内容，请重试或换个问法。'
       }
       nextTick(scrollToBottom)
     },
@@ -384,7 +391,7 @@ async function sendQuestion() {
       loading.value = false
       thinkingSteps.value = []
       if (!messages.value[aiMsgIndex].text) {
-        messages.value[aiMsgIndex].text = '抱歉，AI服务暂时不可用，请稍后重试。'
+        messages.value[aiMsgIndex].text = typeof err === 'string' ? err : '抱歉，AI服务暂时不可用，请稍后重试。'
       }
     }
   })
@@ -401,7 +408,10 @@ function scrollToBottom() {
 // Markdown 简化版
 function formatMarkdown(text) {
   if (!text) return ''
-  let html = text.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  // SSE 转义：把 \n 字面量恢复为真实换行
+  let html = text.replace(/\\n/g, '\n')
+  // 转义 HTML
+  html = html.replace(/</g, '&lt;').replace(/>/g, '&gt;')
   // **粗体**
   html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
   // 清掉残余的 ** 和 *
@@ -422,11 +432,21 @@ function addToCompare(product) {
     ElMessage.warning('最多4个商品')
     return
   }
-  if (!selectedProducts.value.some(p => p.spuId === product.spuId)) {
-    selectedProducts.value.push(product)
-    compareCount.value = selectedProducts.value.length
-    ElMessage.success(`已添加到对比（${compareCount.value}/4）`)
+  if (selectedProducts.value.some(p => p.spuId === product.spuId)) {
+    ElMessage.info('该商品已在对比列表中')
+    return
   }
+  selectedProducts.value.push(product)
+  compareCount.value = selectedProducts.value.length
+  ElMessage.success(`已添加到对比（${compareCount.value}/4）`)
+}
+
+// 清空对比
+function clearCompare() {
+  selectedProducts.value = []
+  compareCount.value = 0
+  compareResult.value = null
+  ElMessage.success('已清空对比列表')
 }
 
 // 显示对比结果

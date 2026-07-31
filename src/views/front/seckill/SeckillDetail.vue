@@ -111,7 +111,8 @@
               type="danger"
               size="large"
               class="btn-flash-big"
-              @click="showOrderDialog = true"
+              :disabled="btnLocked"
+              @click="withLock(() => showOrderDialog = true)()"
             >
               <el-icon><Lightning /></el-icon>
               立即秒杀
@@ -224,9 +225,9 @@
         <!-- 支付信息 -->
         <el-form-item label="支付方式" prop="paymentType">
           <el-radio-group v-model="orderForm.paymentType">
-            <el-radio :value="0">银联</el-radio>
-            <el-radio :value="1" disabled>微信 <el-tag size="small" type="info">未开放</el-tag></el-radio>
             <el-radio :value="2">支付宝</el-radio>
+            <el-radio :value="1" disabled>微信 <el-tag size="small" type="info">未开放</el-tag></el-radio>
+            <el-radio :value="0" disabled>银联 <el-tag size="small" type="info">未开放</el-tag></el-radio>
           </el-radio-group>
         </el-form-item>
 
@@ -262,7 +263,7 @@
 
       <template #footer>
         <el-button @click="showOrderDialog = false">取消</el-button>
-        <el-button type="danger" @click="submitOrder" :loading="submitting">
+        <el-button type="danger" :disabled="btnLocked" @click="withLock(submitOrder)()" :loading="submitting">
           确认秒杀
         </el-button>
       </template>
@@ -274,6 +275,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Picture, Lightning, Clock } from '@element-plus/icons-vue'
+import { useClickLock } from '@/composables/useClickLock'
 import {
   getSeckillSpuDetail,
   getSeckillSpuPageDetail,
@@ -285,6 +287,7 @@ import { ElMessage } from 'element-plus'
 const route = useRoute()
 const router = useRouter()
 
+const { locked: btnLocked, withLock } = useClickLock()
 const loading = ref(false)
 const submitting = ref(false)
 const product = ref(null)
@@ -662,11 +665,16 @@ const orderRules = {
   detailedAddress: [{ required: true, message: '请输入详细地址', trigger: 'blur' }]
 }
 
-// 图片列表
+// 图片列表（相对路径补全为绝对路径）
+const fixImg = (url) => {
+  if (!url) return ''
+  if (url.startsWith('http')) return url
+  return window.location.origin + '/' + url.replace(/^\//, '')
+}
 const imageList = computed(() => {
   if (!product.value?.pictures) return []
   try {
-    return JSON.parse(product.value.pictures)
+    return JSON.parse(product.value.pictures).map(fixImg)
   } catch {
     return []
   }

@@ -2,10 +2,16 @@
   <div class="product-list-page">
     <!-- 页面标题 -->
     <div class="page-header">
-      <h2 class="page-title">
-        <template v-if="searchKeyword">搜索 "{{ searchKeyword }}"</template>
-        <template v-else>商品列表</template>
-      </h2>
+      <div class="page-header-top">
+        <h2 class="page-title">
+          <template v-if="searchKeyword">搜索 "{{ searchKeyword }}"</template>
+          <template v-else>商品列表</template>
+        </h2>
+        <el-button v-if="searchKeyword" size="small" @click="backToProductList">
+          <el-icon><ArrowLeft /></el-icon>
+          返回商品列表
+        </el-button>
+      </div>
       <p class="page-subtitle" v-if="aiExplanation">{{ aiExplanation }}</p>
       <p class="page-subtitle" v-else-if="!searchKeyword">精选好物，品质保证</p>
     </div>
@@ -101,10 +107,11 @@
 </template>
 
 <script setup>
+defineOptions({ name: 'ProductList' })
 import { ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { Picture, ShoppingBag } from '@element-plus/icons-vue'
-import { getFrontSpuList } from '@/api/spu'
+import { Picture, ShoppingBag, ArrowLeft } from '@element-plus/icons-vue'
+import { getFrontSpuList, getFrontAllSpuList } from '@/api/spu'
 import { getFrontCategoryTree } from '@/api/category'
 import { searchProducts } from '@/api/search'
 import { ElMessage } from 'element-plus'
@@ -122,6 +129,10 @@ const aiExplanation = ref('')
 const page = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
+
+// 搜索缓存：避免离开再回来重新调慢速 AI 搜索
+const searchCache = new Map()
+const cacheKey = () => `${searchKeyword.value}_${page.value}_${pageSize.value}`
 
 const fetchCategoryTree = async () => {
   try {
@@ -183,8 +194,17 @@ const fetchProductList = async () => {
   try {
     // AI 语义搜索模式
     if (searchKeyword.value) {
+      const key = cacheKey()
+      const cached = searchCache.get(key)
+      if (cached) {
+        productList.value = cached.products
+        aiExplanation.value = cached.aiExplanation
+        total.value = cached.total
+        loading.value = false
+        return
+      }
       const res = await searchProducts(searchKeyword.value, page.value, pageSize.value)
-      productList.value = (res.data?.products || []).map(p => ({
+      const products = (res.data?.products || []).map(p => ({
         id: p.spuId,
         title: p.title || p.name,
         description: p.categoryName || '',
@@ -194,8 +214,16 @@ const fetchProductList = async () => {
         newArrival: false,
         recommend: false
       }))
-      aiExplanation.value = res.data?.aiExplanation || ''
-      total.value = Number(res.data?.totalCount) || 0
+      const result = {
+        products,
+        aiExplanation: res.data?.aiExplanation || '',
+        total: Number(res.data?.totalCount) || 0
+      }
+      searchCache.set(key, result)
+      productList.value = result.products
+      aiExplanation.value = result.aiExplanation
+      total.value = result.total
+      loading.value = false
       return
     }
 
@@ -210,8 +238,13 @@ const fetchProductList = async () => {
       productList.value = res.data.list || []
       total.value = Number(res.data.total) || 0
     } else {
-      productList.value = []
-      total.value = 0
+      // 无分类筛选 → 显示全部商品
+      const res = await getFrontAllSpuList({
+        page: page.value,
+        pageSize: pageSize.value
+      })
+      productList.value = res.data.list || []
+      total.value = Number(res.data.total) || 0
     }
   } catch (error) {
     ElMessage.error('获取商品列表失败')
@@ -226,7 +259,20 @@ const clearCategory = () => {
   searchKeyword.value = ''
   aiExplanation.value = ''
   page.value = 1
-  fetchProductList()
+  selectFirstCategory()
+}
+
+const backToProductList = () => {
+  searchKeyword.value = ''
+  aiExplanation.value = ''
+  page.value = 1
+  router.replace({ path: '/products' })
+  // keep-alive 缓存组件不会触发 onMounted，手动拉分类列表
+  if (categoryTree.value.length === 0) {
+    fetchCategoryTree()
+  } else {
+    selectFirstCategory()
+  }
 }
 
 const handleCategoryChange = (value) => {
@@ -246,12 +292,18 @@ const goToDetail = (spuId) => {
 
 const getFirstImage = (pictures) => {
   if (!pictures) return ''
+  let url
   try {
     const arr = JSON.parse(pictures)
-    return arr[0] || ''
+    url = arr[0] || ''
   } catch {
-    return pictures
+    url = pictures
   }
+  if (!url) return ''
+  if (!url.startsWith('http')) {
+    url = window.location.origin + '/' + url.replace(/^\//, '')
+  }
+  return url
 }
 
 // 监听路由 query.keyword 变化
@@ -265,11 +317,9 @@ watch(() => route.query.keyword, (newKw) => {
 }, { immediate: true })
 
 onMounted(() => {
+  // 非搜索模式：加载分类树。搜索模式由 watch immediate 处理，避免重复调用
   if (!route.query.keyword) {
     fetchCategoryTree()
-  } else {
-    searchKeyword.value = route.query.keyword
-    fetchProductList()
   }
 })
 </script>
@@ -284,6 +334,12 @@ onMounted(() => {
   margin-bottom: 20px;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--brand-border, #e2e8f0);
+}
+
+.page-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .category-filter {

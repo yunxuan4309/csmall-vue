@@ -10,7 +10,7 @@ import gatewayHttp from './request'
  * @returns {Promise}
  */
 export function searchProducts(keyword, page = 1, pageSize = 10) {
-  return gatewayHttp.post('/ai/search', { keyword, page, pageSize })
+  return gatewayHttp.post('/ai/search', { keyword, page, pageSize }, { timeout: 30000 })
 }
 
 // ==================== 搜索自动补全 ====================
@@ -21,7 +21,7 @@ export function searchProducts(keyword, page = 1, pageSize = 10) {
  * @returns {Promise<{data: {suggestions: string[]}}>}
  */
 export function getSearchSuggestions(keyword) {
-  return gatewayHttp.get('/ai/search/suggest', { params: { keyword } })
+  return gatewayHttp.get('/ai/search/suggest', { params: { keyword }, timeout: 30000 })
 }
 
 // ==================== 相关商品推荐 ====================

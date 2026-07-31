@@ -3,6 +3,15 @@ import { frontHttp, gatewayHttp } from './request'
 // ==================== 前台商品接口 ====================
 
 /**
+ * 获取全部已上架商品列表（不限分类，分页）
+ * @param {Object} params - 查询参数 { page, pageSize }
+ * @returns {Promise}
+ */
+export function getFrontAllSpuList(params) {
+  return frontHttp.get('/front/spu/list/all', { params, timeout: 30000 })
+}
+
+/**
  * 获取前台分类商品列表（分页）
  * @param {number} categoryId - 分类ID
  * @param {Object} params - 查询参数 { page, pageSize }

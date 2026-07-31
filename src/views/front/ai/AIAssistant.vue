@@ -364,7 +364,7 @@ async function sendQuestion() {
         messages.value[aiMsgIndex].products = pendingProducts
       }
       if (!messages.value[aiMsgIndex].text) {
-        messages.value[aiMsgIndex].text = '好的，已了解。'
+        messages.value[aiMsgIndex].text = 'AI 未返回有效内容，请重试或换个问法。'
       }
       nextTick(scrollToBottom)
     },
@@ -372,7 +372,7 @@ async function sendQuestion() {
       loading.value = false
       thinkingSteps.value = []
       if (!messages.value[aiMsgIndex].text) {
-        messages.value[aiMsgIndex].text = '抱歉，AI服务暂时不可用，请稍后重试。'
+        messages.value[aiMsgIndex].text = typeof err === 'string' ? err : '抱歉，AI服务暂时不可用，请稍后重试。'
       }
     }
   })
@@ -388,8 +388,10 @@ function scrollToBottom() {
 // 简单 Markdown 格式化
 function formatMarkdown(text) {
   if (!text) return ''
+  // SSE 转义：把 \n 字面量恢复为真实换行
+  let html = text.replace(/\\n/g, '\n')
   // 转义 HTML
-  let html = text.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  html = html.replace(/</g, '&lt;').replace(/>/g, '&gt;')
   // 加粗
   html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
   // 清掉残留的 ** 和 *

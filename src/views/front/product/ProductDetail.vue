@@ -68,10 +68,10 @@
           </div>
 
           <div class="action-buttons">
-            <el-button type="primary" size="large" @click="handleAddToCart">
+            <el-button type="primary" size="large" :disabled="btnLocked" @click="withLock(handleAddToCart)()">
               加入购物车
             </el-button>
-            <el-button type="danger" size="large" @click="handleBuyNow">
+            <el-button type="danger" size="large" :disabled="btnLocked" @click="withLock(handleBuyNow)()">
               立即购买
             </el-button>
             <el-button size="large" @click="handleAddToCompare">
@@ -147,6 +147,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Picture, DataAnalysis } from '@element-plus/icons-vue'
+import { useClickLock } from '@/composables/useClickLock'
 import { getFrontSpuDetail, getFrontSpuPageDetail, getFrontSkuList } from '@/api/spu'
 import { getRelatedProducts } from '@/api/search'
 import { ElMessage } from 'element-plus'
@@ -157,6 +158,7 @@ const route = useRoute()
 const router = useRouter()
 const cartStore = useCartStore()
 const userStore = useFrontUserStore()
+const { locked: btnLocked, withLock } = useClickLock()
 
 const loading = ref(false)
 const product = ref(null)
@@ -166,11 +168,16 @@ const selectedSku = ref(null)
 const currentImage = ref('')
 const relatedProducts = ref([])
 
-// 图片列表
+// 图片列表（相对路径补全为绝对路径）
+const fixImageUrl = (url) => {
+  if (!url) return ''
+  if (url.startsWith('http')) return url
+  return window.location.origin + '/' + url.replace(/^\//, '')
+}
 const imageList = computed(() => {
   if (!product.value?.pictures) return []
   try {
-    return JSON.parse(product.value.pictures)
+    return JSON.parse(product.value.pictures).map(fixImageUrl)
   } catch {
     return []
   }
@@ -292,8 +299,8 @@ const handleBuyNow = async () => {
     })
 
     if (result) {
-      // 获取刚添加的商品ID（最后一个）
-      const newItem = cartStore.cartItems[cartStore.cartItems.length - 1]
+      // 购物车按 ID 倒序排列，最新添加的在第一位
+      const newItem = cartStore.cartItems[0]
       if (newItem) {
         router.push({
           path: '/order/settle',
