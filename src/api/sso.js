@@ -1,4 +1,4 @@
-import { ssoHttp } from './request'
+import { ssoHttp, gatewayHttp } from './request'
 
 /**
  * 管理员登录
@@ -50,4 +50,31 @@ export function getUserInfo() {
  */
 export function getDashboard() {
   return ssoHttp.get('/admin/dashboard')
+}
+
+// ==================== 后台管理 AMS API ====================
+
+/** 管理员列表（分页） */
+export function getAdminList(params) {
+  return gatewayHttp.get('/ams/admin', { params })
+}
+
+/** 搜索管理员 */
+export function queryAdmins(params) {
+  return gatewayHttp.get('/ams/admin/query', { params })
+}
+
+/** 删除管理员 */
+export function deleteAdmin(id) {
+  return gatewayHttp.post('/ams/admin/delete', null, { params: { id } })
+}
+
+/** 角色列表（分页） */
+export function getRoleList(params) {
+  return gatewayHttp.get('/ams/role/list', { params })
+}
+
+/** 权限列表（分页） */
+export function getPermissionList(params) {
+  return gatewayHttp.get('/ams/permission/list', { params })
 }

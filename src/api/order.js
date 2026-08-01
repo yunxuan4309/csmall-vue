@@ -85,3 +85,13 @@ export function payOrder(data) {
 export function queryPayment(params) {
   return gatewayHttp.post('/oms/order/pay/query', null, { params })
 }
+
+/**
+ * 按日期范围查询每日销售额（管理员用）
+ * @param {string} startDate - 开始日期 yyyy-MM-dd
+ * @param {string} endDate - 结束日期 yyyy-MM-dd
+ * @returns {Promise} 返回 [{date, amount}, ...]
+ */
+export function getSalesByDate(startDate, endDate) {
+  return gatewayHttp.get('/oms/order/sales', { params: { startDate, endDate } })
+}

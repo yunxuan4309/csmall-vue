@@ -18,6 +18,8 @@ export const useUserStore = defineStore('user', () => {
       // 保存 Token（管理员只存tokenValue，不需要Bearer前缀）
       token.value = res.data.tokenValue
       localStorage.setItem('admin_token', res.data.tokenValue)
+      // 清除前台用户 token，避免双端登录冲突
+      localStorage.removeItem('mall_token')
       
       // 获取用户信息
       await fetchUserInfo()

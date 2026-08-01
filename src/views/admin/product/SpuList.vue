@@ -4,7 +4,7 @@
       <template #header>
         <div class="card-header">
           <span>商品管理</span>
-          <el-button type="primary" :icon="Plus">新增商品</el-button>
+          <el-button type="primary" :icon="Plus" @click="ElMessage.info('新增商品功能开发中，敬请期待')">新增商品</el-button>
         </div>
       </template>
 
@@ -21,11 +21,11 @@
       <el-table :data="tableData" border stripe v-loading="loading">
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="name" label="商品名称" />
-        <el-table-column prop="categoryName" label="分类" width="120" />
-        <el-table-column prop="brandName" label="品牌" width="120" />
+        <el-table-column prop="title" label="标题" />
         <el-table-column prop="price" label="价格" width="120">
           <template #default="{ row }">¥{{ row.price }}</template>
         </el-table-column>
+        <el-table-column prop="sales" label="销量" width="80" />
         <el-table-column label="状态" width="100">
           <template #default="{ row }">
             <el-tag v-if="row.isChecked === 1" type="success">已审核</el-tag>
@@ -34,8 +34,8 @@
         </el-table-column>
         <el-table-column label="操作" width="200" fixed="right">
           <template #default>
-            <el-button size="small" type="primary">编辑</el-button>
-            <el-button size="small" type="danger">删除</el-button>
+            <el-button size="small" type="primary" @click="ElMessage.info('编辑功能开发中，敬请期待')">编辑</el-button>
+            <el-button size="small" type="danger" @click="ElMessage.info('删除功能开发中，敬请期待')">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -43,6 +43,7 @@
       <el-pagination
         style="margin-top: 20px; justify-content: flex-end"
         :total="total"
+        :hide-on-single-page="false"
         v-model:current-page="query.page"
         v-model:page-size="query.pageSize"
         :page-sizes="[10, 20, 50]"
@@ -57,6 +58,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { Plus, Search, Refresh } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 import gatewayHttp from '@/api/request'
 
 const loading = ref(false)
@@ -75,7 +77,9 @@ const fetchData = async () => {
     const params = { page: query.page, pageSize: query.pageSize }
     if (query.name) params.name = query.name
     const res = await gatewayHttp.get('/pms/spu', { params })
-    tableData.value = res.data?.list || res.data?.records || []
+    tableData.value = (res.data?.list || res.data?.records || []).map(s => ({
+      ...s, price: s.listPrice
+    }))
     total.value = res.data?.total || 0
   } catch (e) {
     console.error('加载商品失败', e)

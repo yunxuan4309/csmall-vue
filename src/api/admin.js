@@ -9,7 +9,7 @@ import gatewayHttp from './request'
  * @returns {Promise} 返回分页数据 { page, pageSize, totalPage, total, list }
  */
 export function getAdminList(params) {
-  return gatewayHttp.get('/admin/list', { params })
+  return gatewayHttp.get('/ams/admin/list', { params })
 }
 
 /**
@@ -18,7 +18,7 @@ export function getAdminList(params) {
  * @returns {Promise}
  */
 export function getAdminDetail(id) {
-  return gatewayHttp.get(`/admin/${id}`)
+  return gatewayHttp.get(`/ams/admin/${id}`)
 }
 
 /**
@@ -27,7 +27,7 @@ export function getAdminDetail(id) {
  * @returns {Promise}
  */
 export function addAdmin(data) {
-  return gatewayHttp.post('/admin/add', data)
+  return gatewayHttp.post('/ams/admin/add', data)
 }
 
 /**
@@ -37,7 +37,7 @@ export function addAdmin(data) {
  * @returns {Promise}
  */
 export function updateAdmin(id, data) {
-  return gatewayHttp.put(`/admin/update/${id}`, data)
+  return gatewayHttp.put(`/ams/admin/update/${id}`, data)
 }
 
 /**
@@ -46,7 +46,7 @@ export function updateAdmin(id, data) {
  * @returns {Promise}
  */
 export function deleteAdmin(id) {
-  return gatewayHttp.delete(`/admin/delete/${id}`)
+  return gatewayHttp.delete(`/ams/admin/delete/${id}`)
 }
 
 /**
@@ -55,5 +55,5 @@ export function deleteAdmin(id) {
  * @returns {Promise}
  */
 export function batchDeleteAdmin(ids) {
-  return gatewayHttp.post('/admin/batch-delete', { ids })
+  return gatewayHttp.post('/ams/admin/batch-delete', { ids })
 }

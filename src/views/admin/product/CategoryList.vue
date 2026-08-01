@@ -4,7 +4,7 @@
       <template #header>
         <div class="card-header">
           <span>分类管理</span>
-          <el-button type="primary" :icon="Plus">新增分类</el-button>
+          <el-button type="primary" :icon="Plus" @click="ElMessage.info('新增分类功能开发中，敬请期待')">新增分类</el-button>
         </div>
       </template>
 
@@ -33,8 +33,8 @@
         </el-table-column>
         <el-table-column label="操作" width="200" fixed="right">
           <template #default>
-            <el-button size="small" type="primary">编辑</el-button>
-            <el-button size="small" type="danger">删除</el-button>
+            <el-button size="small" type="primary" @click="ElMessage.info('编辑功能开发中，敬请期待')">编辑</el-button>
+            <el-button size="small" type="danger" @click="ElMessage.info('删除功能开发中，敬请期待')">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -45,6 +45,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 import gatewayHttp from '@/api/request'
 
 const loading = ref(false)

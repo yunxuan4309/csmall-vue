@@ -27,6 +27,7 @@ export default defineConfig({
       '/ai':       { target: 'http://localhost:10010', bypass: spaBypass },  // 直连 mall-ai，避免 Gateway 缓冲 SSE 流
       '/pms':      { target: 'http://localhost:10087', bypass: spaBypass },
       '/admin':    { target: 'http://localhost:10087', bypass: spaBypass },
+      '/ams':      { target: 'http://localhost:10087', bypass: spaBypass },
     }
   }
 })

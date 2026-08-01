@@ -46,10 +46,10 @@
               <span>支付宝</span>
             </div>
           </el-radio>
-          <el-radio :value="0" class="payment-option">
+          <el-radio :value="0" class="payment-option" disabled>
             <div class="option-content">
               <el-icon :size="24" color="#ff6b6b"><CreditCard /></el-icon>
-              <span>银联支付</span>
+              <span>银联支付 <el-tag size="small" type="info">未开放</el-tag></span>
             </div>
           </el-radio>
         </el-radio-group>

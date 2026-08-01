@@ -26,6 +26,8 @@ export const useFrontUserStore = defineStore('frontUser', () => {
       const fullToken = `${res.data.tokenHeader} ${res.data.tokenValue}`
       token.value = fullToken
       localStorage.setItem('mall_token', fullToken)
+      // 清除管理员 token，避免双端登录冲突
+      localStorage.removeItem('admin_token')
       
       // 获取用户信息
       await fetchUserInfo()

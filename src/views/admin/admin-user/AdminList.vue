@@ -4,48 +4,83 @@
       <template #header>
         <div class="card-header">
           <span>管理员管理</span>
-          <el-button type="primary" :icon="Plus">新增管理员</el-button>
+          <el-button type="primary" :icon="Plus" @click="ElMessage.info('新增管理员功能开发中，敬请期待')">新增管理员</el-button>
         </div>
       </template>
       
+      <el-form :inline="true" style="margin-bottom:16px">
+        <el-form-item>
+          <el-input v-model="searchQuery" placeholder="搜索用户名/昵称" clearable style="width:220px" @keyup.enter="fetchData" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="fetchData">搜索</el-button>
+          <el-button @click="searchQuery='';fetchData()">重置</el-button>
+        </el-form-item>
+      </el-form>
+
       <el-table :data="tableData" border stripe v-loading="loading">
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="username" label="用户名" />
-        <el-table-column prop="nickname" label="昵称" />
-        <el-table-column prop="phone" label="手机号" />
+        <el-table-column prop="username" label="用户名" width="120" />
+        <el-table-column prop="nickname" label="昵称" width="120" />
+        <el-table-column prop="phone" label="手机号" width="130" />
         <el-table-column prop="email" label="邮箱" />
-        <el-table-column label="状态" width="100">
-          <template #default>
-            <el-tag type="success">正常</el-tag>
+        <el-table-column label="状态" width="80">
+          <template #default="{ row }">
+            <el-tag :type="row.enable ? 'success' : 'danger'">{{ row.enable ? '启用' : '禁用' }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" width="160" fixed="right">
           <template #default>
-            <el-button size="small" type="primary">编辑</el-button>
-            <el-button size="small" type="danger">删除</el-button>
+            <el-button size="small" type="primary" @click="ElMessage.info('编辑功能开发中，敬请期待')">编辑</el-button>
+            <el-button size="small" type="danger" @click="ElMessage.info('删除功能开发中，敬请期待')">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
-      
+
       <el-pagination
         style="margin-top: 20px; justify-content: flex-end"
-        :total="100"
+        v-model:current-page="page"
+        v-model:page-size="pageSize"
+        :total="total"
         :page-sizes="[10, 20, 50]"
         layout="total, sizes, prev, pager, next"
+        :hide-on-single-page="false"
+        @current-change="fetchData"
+        @size-change="fetchData"
       />
     </el-card>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { getAdminList, queryAdmins } from '@/api/sso'
 
 const loading = ref(false)
-const tableData = ref([
-  { id: 1, username: 'admin', nickname: '超级管理员', phone: '13800138000', email: 'admin@example.com' },
-  { id: 2, username: 'operator', nickname: '操作员', phone: '13800138001', email: 'operator@example.com' }
-])
+const tableData = ref([])
+const total = ref(0)
+const page = ref(1)
+const pageSize = ref(10)
+const searchQuery = ref('')
+
+const fetchData = async () => {
+  loading.value = true
+  try {
+    const api = searchQuery.value ? queryAdmins : getAdminList
+    const params = { pageNum: page.value, sizeNum: pageSize.value }
+    if (searchQuery.value) params.query = searchQuery.value
+    const res = await api(params)
+    tableData.value = res.data.list || res.data.records || []
+    total.value = res.data.total || 0
+  } catch (e) {
+    console.error('加载管理员失败', e)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => fetchData())
 </script>
 
 <style scoped>
