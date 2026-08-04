@@ -186,7 +186,7 @@ const openStateDialog = (row) => {
 }
 
 const doChangeState = async () => {
-  if (!stateForm.newState) { ElMessage.warning('请选择目标状态'); return }
+  if (stateForm.newState == null) { ElMessage.warning('请选择目标状态'); return }
   savingState.value = true
   try {
     await gatewayHttp.post('/oms/order/update/state', { id: stateForm.orderId, state: stateForm.newState })
