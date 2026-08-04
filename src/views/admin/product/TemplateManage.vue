@@ -103,6 +103,9 @@
         <el-form-item label="属性名" required>
           <el-input v-model="attrForm.name" placeholder="例如：存储容量" />
         </el-form-item>
+        <el-form-item label="简介" required>
+          <el-input v-model="attrForm.description" placeholder="例如：手机内置存储空间大小（必填）" />
+        </el-form-item>
         <el-form-item label="类型" required>
           <el-radio-group v-model="attrForm.type">
             <el-radio :value="1">销售属性（生成SKU）</el-radio>
@@ -172,7 +175,7 @@ const detailLoading = ref(false)
 const attrDialogVisible = ref(false)
 const attrMode = ref('add')
 const attrForm = reactive({
-  id: null, templateId: null, name: '', type: 1, inputType: 0,
+  id: null, templateId: null, name: '', description: '', type: 1, inputType: 0,
   valueListText: '', unit: '', sort: 0, allowCustomize: 0
 })
 const savingAttr = ref(false)
@@ -257,7 +260,7 @@ const openDetail = async (row) => {
 }
 
 const openAddAttr = () => {
-  Object.assign(attrForm, { id: null, templateId: currentTemplate.value?.id, name: '', type: 1, inputType: 0, valueListText: '', unit: '', sort: 0, allowCustomize: 0 })
+  Object.assign(attrForm, { id: null, templateId: currentTemplate.value?.id, name: '', description: '', type: 1, inputType: 0, valueListText: '', unit: '', sort: 0, allowCustomize: 0 })
   attrMode.value = 'add'
   attrDialogVisible.value = true
 }
@@ -265,7 +268,7 @@ const openAddAttr = () => {
 const openEditAttr = (row) => {
   Object.assign(attrForm, {
     id: row.id, templateId: currentTemplate.value?.id, name: row.name || '',
-    type: row.type ?? 1, inputType: row.inputType ?? 0,
+    description: row.description || '', type: row.type ?? 1, inputType: row.inputType ?? 0,
     valueListText: row.valueList || '', unit: row.unit || '', sort: row.sort || 0, allowCustomize: row.allowCustomize ?? 0
   })
   attrMode.value = 'edit'
@@ -277,8 +280,8 @@ const saveAttr = async () => {
   savingAttr.value = true
   try {
     const data = {
-      templateId: attrForm.templateId, name: attrForm.name, type: attrForm.type,
-      inputType: attrForm.inputType, valueList: attrForm.valueListText, unit: attrForm.unit,
+      templateId: attrForm.templateId, name: attrForm.name, description: attrForm.description,
+      type: attrForm.type, inputType: attrForm.inputType, valueList: attrForm.valueListText, unit: attrForm.unit,
       sort: attrForm.sort, allowCustomize: attrForm.allowCustomize
     }
     if (attrMode.value === 'add') {
