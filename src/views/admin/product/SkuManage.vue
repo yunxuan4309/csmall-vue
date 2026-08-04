@@ -119,7 +119,8 @@ import { buildImageUrl, toRelativePath } from '@/utils/image'
 
 const route = useRoute()
 const router = useRouter()
-const spuId = Number(route.params.spuId)
+// 雪花 ID 是 19 位 Long，JS Number 会丢失精度，必须保持 String
+const spuId = route.params.spuId
 
 const spuTitle = ref('')
 const loading = ref(false)
