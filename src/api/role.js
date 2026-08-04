@@ -6,16 +6,7 @@ import gatewayHttp from './request'
  * @returns {Promise}
  */
 export function getRoleList(params) {
-  return gatewayHttp.get('/role/list', { params })
-}
-
-/**
- * 获取角色详情
- * @param {number} id - 角色ID
- * @returns {Promise}
- */
-export function getRoleDetail(id) {
-  return gatewayHttp.get(`/role/${id}`)
+  return gatewayHttp.get('/ams/role/list', { params })
 }
 
 /**
@@ -24,17 +15,16 @@ export function getRoleDetail(id) {
  * @returns {Promise}
  */
 export function addRole(data) {
-  return gatewayHttp.post('/role/add', data)
+  return gatewayHttp.post('/ams/role/save', data)
 }
 
 /**
  * 更新角色
- * @param {number} id - 角色ID
- * @param {Object} data - 角色信息
+ * @param {Object} data - 角色信息（含 id）
  * @returns {Promise}
  */
-export function updateRole(id, data) {
-  return gatewayHttp.put(`/role/update/${id}`, data)
+export function updateRole(data) {
+  return gatewayHttp.post('/ams/role/update', data)
 }
 
 /**
@@ -43,5 +33,5 @@ export function updateRole(id, data) {
  * @returns {Promise}
  */
 export function deleteRole(id) {
-  return gatewayHttp.delete(`/role/delete/${id}`)
+  return gatewayHttp.post('/ams/role/delete', null, { params: { id } })
 }

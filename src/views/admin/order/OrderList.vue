@@ -13,7 +13,7 @@
         </el-form-item>
         <el-form-item label="订单状态">
           <el-select v-model="searchStatus" placeholder="请选择" clearable style="width: 130px">
-            <el-option label="未支付" :value="0" />
+            <el-option label="待付款" :value="0" />
             <el-option label="已支付" :value="3" />
             <el-option label="已签收" :value="4" />
             <el-option label="已取消" :value="2" />
@@ -84,6 +84,7 @@ import { ref, onMounted } from 'vue'
 import { Search, Refresh } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { getOrderList, getOrderDetail } from '@/api/order'
+import { ORDER_STATUS_TEXT } from '@/utils/constants'
 
 const tableData = ref([])
 const loading = ref(false)
@@ -135,10 +136,7 @@ const resetSearch = () => {
   fetchData()
 }
 
-const getStatusText = (status) => {
-  const map = { 0: '未支付', 1: '已关闭', 2: '已取消', 3: '已支付', 4: '已签收', 5: '已拒收', 6: '退款中', 7: '已退款' }
-  return map[status] || '未知'
-}
+const getStatusText = (status) => ORDER_STATUS_TEXT[status] || '未知'
 
 const getStatusType = (status) => {
   const map = { 0: 'warning', 1: 'info', 2: 'info', 3: 'primary', 4: 'success', 5: 'danger', 6: 'warning', 7: 'info' }

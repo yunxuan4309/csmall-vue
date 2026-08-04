@@ -6,15 +6,7 @@ import gatewayHttp from './request'
  * @returns {Promise}
  */
 export function getPermissionList(params) {
-  return gatewayHttp.get('/permission/list', { params })
-}
-
-/**
- * 获取权限树
- * @returns {Promise}
- */
-export function getPermissionTree() {
-  return gatewayHttp.get('/permission/tree')
+  return gatewayHttp.get('/ams/permission/list', { params })
 }
 
 /**
@@ -23,17 +15,16 @@ export function getPermissionTree() {
  * @returns {Promise}
  */
 export function addPermission(data) {
-  return gatewayHttp.post('/permission/add', data)
+  return gatewayHttp.post('/ams/permission/save', data)
 }
 
 /**
  * 更新权限
- * @param {number} id - 权限ID
- * @param {Object} data - 权限信息
+ * @param {Object} data - 权限信息（含 id）
  * @returns {Promise}
  */
-export function updatePermission(id, data) {
-  return gatewayHttp.put(`/permission/update/${id}`, data)
+export function updatePermission(data) {
+  return gatewayHttp.post('/ams/permission/update', data)
 }
 
 /**
@@ -42,5 +33,5 @@ export function updatePermission(id, data) {
  * @returns {Promise}
  */
 export function deletePermission(id) {
-  return gatewayHttp.delete(`/permission/delete/${id}`)
+  return gatewayHttp.post('/ams/permission/delete', null, { params: { id } })
 }

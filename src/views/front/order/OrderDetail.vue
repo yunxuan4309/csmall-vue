@@ -110,6 +110,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { Picture } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getOrderDetail, cancelOrder as apiCancelOrder, confirmReceive as apiConfirmReceive } from '@/api/order'
+import { ORDER_STATUS_TEXT } from '@/utils/constants'
 
 const route = useRoute()
 const router = useRouter()
@@ -117,18 +118,7 @@ const router = useRouter()
 const loading = ref(false)
 const orderDetail = ref(null)
 
-// 订单状态映射
-const stateMap = {
-  0: '待付款',
-  1: '已关闭',
-  2: '已取消',
-  3: '已支付',
-  4: '已签收',
-  5: '已拒收',
-  6: '退款处理中',
-  7: '已退款'
-}
-
+// 订单状态文本统一使用 constants.js（与后端 OmsOrder.state 一致）
 const stateTypeMap = {
   0: 'warning',
   1: 'info',
@@ -146,7 +136,7 @@ const paymentMap = {
   2: '支付宝'
 }
 
-const getStateText = (state) => stateMap[state] || '未知'
+const getStateText = (state) => ORDER_STATUS_TEXT[state] || '未知'
 const getStateType = (state) => stateTypeMap[state] || ''
 const getPaymentText = (type) => paymentMap[type] || '未知'
 

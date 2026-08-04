@@ -127,6 +127,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { Wallet, Money, CreditCard } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getOrderDetail, payOrder, queryPayment } from '@/api/order'
+import { ORDER_STATUS_TEXT } from '@/utils/constants'
 
 const route = useRoute()
 const router = useRouter()
@@ -140,18 +141,7 @@ const qrCodeUrl = ref('')
 const orderDetail = ref(null)
 const selectedPaymentType = ref(2)
 
-// 订单状态映射
-const stateMap = {
-  0: '待付款',
-  1: '已关闭',
-  2: '已取消',
-  3: '已支付',
-  4: '已签收',
-  5: '已拒收',
-  6: '退款处理中',
-  7: '已退款'
-}
-
+// 订单状态文本统一使用 constants.js（与后端 OmsOrder.state 一致）
 const stateTypeMap = {
   0: 'warning',
   1: 'info',
@@ -163,7 +153,7 @@ const stateTypeMap = {
   7: 'info'
 }
 
-const getStateText = (state) => stateMap[state] || '未知'
+const getStateText = (state) => ORDER_STATUS_TEXT[state] || '未知'
 const getStateType = (state) => stateTypeMap[state] || ''
 
 // 是否可以支付

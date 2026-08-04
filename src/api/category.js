@@ -9,22 +9,41 @@ export function getFrontCategoryTree() {
 }
 
 /**
- * 获取分类列表（后台管理用）
+ * 递归加载子分类（内部工具，后台管理树构建用）
+ */
+const loadChildren = async (parentId = 0) => {
+  const res = await gatewayHttp.get('/pms/categories/list-by-parent', {
+    params: { parentId, page: 1, pageSize: 100 }
+  })
+  const list = res.data?.list || res.data?.records || []
+  const result = []
+  for (const item of list) {
+    const node = { ...item, children: [] }
+    if (item.isParent === 1 || item.depth < 2) {
+      node.children = await loadChildren(item.id)
+    }
+    result.push(node)
+  }
+  return result
+}
+
+/**
+ * 获取分类列表（后台管理用，按父级查子级）
  * @param {number} parentId - 父分类ID，默认0表示根分类
  * @returns {Promise}
  */
 export function getCategoryList(parentId = 0) {
-  return gatewayHttp.get('/pms/categories/list/children', {
+  return gatewayHttp.get('/pms/categories/list-by-parent', {
     params: { parentId }
   })
 }
 
 /**
- * 获取分类树
- * @returns {Promise}
+ * 获取分类树（后台管理用，递归构建）
+ * @returns {Promise} 返回分类树数组
  */
-export function getCategoryTree() {
-  return gatewayHttp.get('/pms/categories/tree')
+export async function getCategoryTree() {
+  return loadChildren(0)
 }
 
 /**
@@ -33,7 +52,7 @@ export function getCategoryTree() {
  * @returns {Promise}
  */
 export function addCategory(data) {
-  return gatewayHttp.post('/pms/categories/add/new', data)
+  return gatewayHttp.post('/pms/categories/addnew', data)
 }
 
 /**
@@ -43,7 +62,7 @@ export function addCategory(data) {
  * @returns {Promise}
  */
 export function updateCategory(id, data) {
-  return gatewayHttp.put(`/pms/categories/update/${id}`, data)
+  return gatewayHttp.post(`/pms/categories/${id}/full-info/update`, data)
 }
 
 /**
@@ -52,5 +71,5 @@ export function updateCategory(id, data) {
  * @returns {Promise}
  */
 export function deleteCategory(id) {
-  return gatewayHttp.delete(`/pms/categories/delete/${id}`)
+  return gatewayHttp.post(`/pms/categories/${id}/delete`)
 }

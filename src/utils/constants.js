@@ -20,23 +20,27 @@ export const DEFAULT_PAGE = {
 /** 分页大小选项 */
 export const PAGE_SIZE_OPTIONS = [10, 20, 50, 100]
 
-/** 订单状态枚举 */
+/** 订单状态枚举（与后端 OmsOrder.state 一致：0~7） */
 export const ORDER_STATUS = {
-  PENDING: 0,      // 待付款
-  PAID: 1,         // 已付款
-  SHIPPED: 2,      // 已发货
-  RECEIVED: 3,     // 已收货
-  CANCELLED: 4,    // 已取消
-  REFUNDED: 5      // 已退款
+  PENDING: 0,       // 未支付（前端显示"待付款"）
+  CLOSED: 1,        // 已关闭（超时未支付）
+  CANCELLED: 2,     // 已取消
+  PAID: 3,          // 已支付
+  RECEIVED: 4,      // 已签收
+  REJECTED: 5,      // 已拒收
+  REFUNDING: 6,     // 退款处理中
+  REFUNDED: 7       // 已退款
 }
 
 /** 订单状态文本映射 */
 export const ORDER_STATUS_TEXT = {
   [ORDER_STATUS.PENDING]: '待付款',
-  [ORDER_STATUS.PAID]: '已付款',
-  [ORDER_STATUS.SHIPPED]: '已发货',
-  [ORDER_STATUS.RECEIVED]: '已收货',
+  [ORDER_STATUS.CLOSED]: '已关闭',
   [ORDER_STATUS.CANCELLED]: '已取消',
+  [ORDER_STATUS.PAID]: '已支付',
+  [ORDER_STATUS.RECEIVED]: '已签收',
+  [ORDER_STATUS.REJECTED]: '已拒收',
+  [ORDER_STATUS.REFUNDING]: '退款处理中',
   [ORDER_STATUS.REFUNDED]: '已退款'
 }
 

@@ -54,6 +54,10 @@
             <el-icon><Goods /></el-icon>
             <span>商品列表</span>
           </el-menu-item>
+          <el-menu-item index="/admin/product/template">
+            <el-icon><Files /></el-icon>
+            <span>属性模板</span>
+          </el-menu-item>
         </el-sub-menu>
 
         <el-menu-item index="/admin/order">
@@ -119,6 +123,10 @@
           <el-menu-item index="/admin/product/spu">
             <el-icon><Goods /></el-icon>
             <span>商品列表</span>
+          </el-menu-item>
+          <el-menu-item index="/admin/product/template">
+            <el-icon><Files /></el-icon>
+            <span>属性模板</span>
           </el-menu-item>
         </el-sub-menu>
 
@@ -227,6 +235,7 @@ import {
   Goods,
   Menu,
   Collection,
+  Files,
   List,
   Fold,
   Expand,

@@ -65,7 +65,7 @@ export function getFrontAttributeTemplate(spuId) {
  * @returns {Promise} 返回分页数据
  */
 export function getSpuList(params) {
-  return gatewayHttp.get('/pms/spu/list', { params })
+  return gatewayHttp.get('/pms/spu', { params })
 }
 
 /**
@@ -83,7 +83,7 @@ export function getSpuDetail(id) {
  * @returns {Promise}
  */
 export function addSpu(data) {
-  return gatewayHttp.post('/pms/spu/add', data)
+  return gatewayHttp.post('/pms/spu/addnew', data)
 }
 
 /**
@@ -93,7 +93,7 @@ export function addSpu(data) {
  * @returns {Promise}
  */
 export function updateSpu(id, data) {
-  return gatewayHttp.put(`/pms/spu/update/${id}`, data)
+  return gatewayHttp.post(`/pms/spu/${id}/update`, data)
 }
 
 /**
@@ -102,7 +102,7 @@ export function updateSpu(id, data) {
  * @returns {Promise}
  */
 export function deleteSpu(id) {
-  return gatewayHttp.delete(`/pms/spu/delete/${id}`)
+  return gatewayHttp.post(`/pms/spu/${id}/delete`)
 }
 
 /**
@@ -112,5 +112,5 @@ export function deleteSpu(id) {
  * @returns {Promise}
  */
 export function updateSpuStatus(id, status) {
-  return gatewayHttp.put(`/pms/spu/status/${id}`, { status })
+  return gatewayHttp.post(`/pms/spu/${id}/published-status/update`, null, { params: { published: status } })
 }

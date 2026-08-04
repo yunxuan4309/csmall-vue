@@ -28,6 +28,7 @@ export default defineConfig({
       '/pms':      { target: 'http://localhost:10087', bypass: spaBypass },
       '/admin':    { target: 'http://localhost:10087', bypass: spaBypass },
       '/ams':      { target: 'http://localhost:10087', bypass: spaBypass },
+      '/upload':   { target: 'http://localhost:10087', bypass: spaBypass },
     }
   }
 })

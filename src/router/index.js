@@ -161,6 +161,18 @@ const routes = [
         meta: { title: '商品管理', icon: 'Goods' }
       },
       {
+        path: 'product/sku/:spuId',
+        name: 'SkuManage',
+        component: () => import('@/views/admin/product/SkuManage.vue'),
+        meta: { title: 'SKU 管理', icon: 'Goods', hidden: true }
+      },
+      {
+        path: 'product/template',
+        name: 'TemplateManage',
+        component: () => import('@/views/admin/product/TemplateManage.vue'),
+        meta: { title: '属性模板', icon: 'Files' }
+      },
+      {
         path: 'order',
         name: 'Order',
         component: () => import('@/views/admin/order/OrderList.vue'),

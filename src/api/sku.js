@@ -1,15 +1,6 @@
 import gatewayHttp from './request'
 
 /**
- * 获取 SKU 列表
- * @param {Object} params - 查询参数
- * @returns {Promise}
- */
-export function getSkuList(params) {
-  return gatewayHttp.get('/pms/sku/list', { params })
-}
-
-/**
  * 获取 SKU 详情
  * @param {number} id - SKU ID
  * @returns {Promise}
@@ -19,12 +10,13 @@ export function getSkuDetail(id) {
 }
 
 /**
- * 根据 SPU ID 获取 SKU 列表
+ * 根据 SPU ID 获取 SKU 列表（分页）
  * @param {number} spuId - SPU ID
+ * @param {Object} params - 查询参数 { page, pageSize }
  * @returns {Promise}
  */
-export function getSkuBySpuId(spuId) {
-  return gatewayHttp.get(`/pms/sku/spu/${spuId}`)
+export function getSkuBySpuId(spuId, params) {
+  return gatewayHttp.get('/pms/sku', { params: { spuId, ...params } })
 }
 
 /**
@@ -33,17 +25,17 @@ export function getSkuBySpuId(spuId) {
  * @returns {Promise}
  */
 export function addSku(data) {
-  return gatewayHttp.post('/pms/sku/add', data)
+  return gatewayHttp.post('/pms/sku/addnew', data)
 }
 
 /**
- * 更新 SKU
+ * 更新 SKU 完整信息
  * @param {number} id - SKU ID
  * @param {Object} data - SKU 信息
  * @returns {Promise}
  */
 export function updateSku(id, data) {
-  return gatewayHttp.put(`/pms/sku/update/${id}`, data)
+  return gatewayHttp.post(`/pms/sku/${id}/update`, data)
 }
 
 /**
@@ -52,15 +44,14 @@ export function updateSku(id, data) {
  * @returns {Promise}
  */
 export function deleteSku(id) {
-  return gatewayHttp.delete(`/pms/sku/delete/${id}`)
+  return gatewayHttp.post(`/pms/sku/${id}/delete`)
 }
 
 /**
- * 更新 SKU 库存
- * @param {number} id - SKU ID
- * @param {number} stock - 库存数量
+ * 根据属性模板生成 SKU 组合（笛卡尔积）
+ * @param {Object} data - { spuId, attributes: [{ attributeId, attributeName, values: [] }] }
  * @returns {Promise}
  */
-export function updateSkuStock(id, stock) {
-  return gatewayHttp.put(`/pms/sku/stock/${id}`, { stock })
+export function generateSkus(data) {
+  return gatewayHttp.post('/pms/sku/generate', data)
 }

@@ -98,6 +98,7 @@
             <el-button @click="$router.push('/register')">注册</el-button>
           </template>
           <el-button
+            v-if="adminStore.token"
             type="primary"
             link
             size="small"
@@ -133,11 +134,13 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { User, ArrowDown, Setting, Menu, Search } from '@element-plus/icons-vue'
 import { useFrontUserStore } from '@/store/frontUser'
+import { useUserStore } from '@/store/user'
 import { getSearchSuggestions } from '@/api/search'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useFrontUserStore()
+const adminStore = useUserStore()
 
 const mobileMenuVisible = ref(false)
 const searchKeyword = ref('')

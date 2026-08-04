@@ -6,7 +6,7 @@ import gatewayHttp from './request'
  * @returns {Promise}
  */
 export function getBrandList(params) {
-  return gatewayHttp.get('/pms/brand/list', { params })
+  return gatewayHttp.get('/pms/brands', { params })
 }
 
 /**
@@ -15,7 +15,7 @@ export function getBrandList(params) {
  * @returns {Promise}
  */
 export function addBrand(data) {
-  return gatewayHttp.post('/pms/brand/add', data)
+  return gatewayHttp.post('/pms/brands/addnew', data)
 }
 
 /**
@@ -25,7 +25,7 @@ export function addBrand(data) {
  * @returns {Promise}
  */
 export function updateBrand(id, data) {
-  return gatewayHttp.put(`/pms/brand/update/${id}`, data)
+  return gatewayHttp.post(`/pms/brands/${id}/update`, data)
 }
 
 /**
@@ -34,5 +34,5 @@ export function updateBrand(id, data) {
  * @returns {Promise}
  */
 export function deleteBrand(id) {
-  return gatewayHttp.delete(`/pms/brand/delete/${id}`)
+  return gatewayHttp.post(`/pms/brands/${id}/delete`)
 }
