@@ -67,7 +67,7 @@
         <el-form-item label="品牌名称" required>
           <el-input v-model="form.name" placeholder="例如：苹果" />
         </el-form-item>
-        <el-form-item label="拼音" required>
+        <el-form-item label="拼音">
           <el-input v-model="form.pinyin" placeholder="例如：apple" />
         </el-form-item>
         <el-form-item label="Logo">
@@ -83,7 +83,7 @@
             <span v-else style="color:#909399;font-size:12px">未设置</span>
           </div>
         </el-form-item>
-        <el-form-item label="简介" required>
+        <el-form-item label="简介">
           <el-input type="textarea" :rows="2" v-model="form.description" placeholder="一句话品牌简介" />
         </el-form-item>
         <el-form-item label="关键词">
@@ -196,8 +196,6 @@ const openEdit = async (row) => {
 
 const handleSave = async () => {
   if (!form.name) { ElMessage.warning('请填写品牌名称'); return }
-  if (!form.pinyin) { ElMessage.warning('请填写拼音'); return }
-  if (!form.description) { ElMessage.warning('请填写简介'); return }
   saving.value = true
   try {
     const data = {
