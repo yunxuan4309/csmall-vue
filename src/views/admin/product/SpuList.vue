@@ -398,6 +398,7 @@ const handleSave = async () => {
         const oldTemplate = attributeTemplates.value.find(t => t.id === originalTemplateId.value)?.name || '原模板'
         const newTemplate = attributeTemplates.value.find(t => t.id === form.attributeTemplateId)?.name || '新模板'
         const seconds = ref(10)
+        const countdownText = computed(() => `确认更换（${seconds.value}s）`)
         const timer = setInterval(() => { if (seconds.value > 0) seconds.value-- }, 1000)
         try {
           await ElMessageBox({
@@ -405,7 +406,7 @@ const handleSave = async () => {
             message: h('div', { style: 'line-height:1.8' }, [
               h('p', null, `属性模板将从「${oldTemplate}」更换为「${newTemplate}」。`),
               h('p', { style: 'color:#e6a23c;font-weight:bold;margin:8px 0' }, '⚠️ 更换模板将删除该商品下所有已生成的 SKU 及规格数据（不可恢复），需重新生成 SKU。'),
-              h('p', null, () => `确认更换（${seconds.value}s）`)
+              h('p', { style: 'font-size:14px;color:#f56c6c' }, countdownText)
             ]),
             confirmButtonText: '确认更换',
             cancelButtonText: '取消',
