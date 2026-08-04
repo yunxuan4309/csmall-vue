@@ -172,7 +172,9 @@ const transitionMap = {
   4: [{ value: 5, label: '已拒收' }, { value: 6, label: '退款中' }],
   6: [{ value: 7, label: '已退款' }],
   1: [{ value: 0, label: '重新激活（未支付）' }, { value: 2, label: '已取消' }],
-  2: [{ value: 0, label: '重新激活（未支付）' }],
+  2: [{ value: 0, label: '重新激活（未支付）' }, { value: 1, label: '已关闭' }],
+  5: [{ value: 3, label: '恢复为已支付' }],
+  7: [{ value: 3, label: '恢复为已支付' }],
 }
 const allowedTransitions = computed(() => transitionMap[stateForm.oldState] || [])
 
