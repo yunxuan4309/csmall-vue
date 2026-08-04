@@ -397,37 +397,32 @@ const handleSave = async () => {
       if (templateChanged) {
         const oldTemplate = attributeTemplates.value.find(t => t.id === originalTemplateId.value)?.name || '原模板'
         const newTemplate = attributeTemplates.value.find(t => t.id === form.attributeTemplateId)?.name || '新模板'
-        const seconds = ref(10)
-        const countdownText = computed(() => `确认更换（${seconds.value}s）`)
-        const timer = setInterval(() => { if (seconds.value > 0) seconds.value-- }, 1000)
+        // 10s 倒计时通知 → 倒计时完毕弹确认框
+        let seconds = 10
+        const notify = ElMessage.warning({ message: `更换模板将在 ${seconds}s 后确认…`, duration: 0, showClose: true })
+        const timer = setInterval(() => {
+          seconds--
+          notify.message = `更换模板将在 ${seconds}s 后确认…`
+          if (seconds <= 0) {
+            clearInterval(timer)
+            notify.close()
+          }
+        }, 1000)
         try {
-          await ElMessageBox({
-            title: '更换属性模板警告',
-            message: h('div', { style: 'line-height:1.8' }, [
-              h('p', null, `属性模板将从「${oldTemplate}」更换为「${newTemplate}」。`),
-              h('p', { style: 'color:#e6a23c;font-weight:bold;margin:8px 0' }, '⚠️ 更换模板将删除该商品下所有已生成的 SKU 及规格数据（不可恢复），需重新生成 SKU。'),
-              h('p', { style: 'font-size:14px;color:#f56c6c' }, countdownText)
-            ]),
-            confirmButtonText: '确认更换',
-            cancelButtonText: '取消',
-            type: 'warning',
-            showClose: false,
-            closeOnClickModal: false,
-            beforeClose: (action, instance, done) => {
-              if (action === 'confirm') {
-                if (seconds.value > 0) {
-                  ElMessage.warning(`请等待倒计时结束（剩余 ${seconds.value}s）`)
-                  return
-                }
-                done()
-              } else {
-                done()
-              }
-            }
-          }).catch(() => {})
-        } finally {
+          await new Promise((resolve) => setTimeout(resolve, 10000))
+          await ElMessageBox.confirm(
+            `属性模板将从「${oldTemplate}」更换为「${newTemplate}」。\n\n⚠️ 更换模板将删除该商品下所有已生成的 SKU 及规格数据（不可恢复），需重新生成 SKU。\n\n确认更换？`,
+            '更换属性模板警告',
+            { confirmButtonText: '确认更换', cancelButtonText: '取消', type: 'warning' }
+          )
+        } catch {
           clearInterval(timer)
+          notify.close()
+          ElMessage.info('已取消更换属性模板')
+          return
         }
+        clearInterval(timer)
+        notify.close()
       }
       // 只发送 SpuUpdateDTO 的字段
       await updateSpu(editingId.value, {

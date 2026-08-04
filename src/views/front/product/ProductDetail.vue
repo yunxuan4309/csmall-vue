@@ -151,6 +151,7 @@ import { useClickLock } from '@/composables/useClickLock'
 import { getFrontSpuDetail, getFrontSpuPageDetail, getFrontSkuList } from '@/api/spu'
 import { getRelatedProducts } from '@/api/search'
 import { ElMessage } from 'element-plus'
+import { buildImageUrl } from '@/utils/image'
 import { useCartStore } from '@/store/cart'
 import { useFrontUserStore } from '@/store/frontUser'
 
@@ -168,16 +169,11 @@ const selectedSku = ref(null)
 const currentImage = ref('')
 const relatedProducts = ref([])
 
-// 图片列表（相对路径补全为绝对路径）
-const fixImageUrl = (url) => {
-  if (!url) return ''
-  if (url.startsWith('http')) return url
-  return window.location.origin + '/' + url.replace(/^\//, '')
-}
+// 图片列表（相对路径补全为可访问 URL）
 const imageList = computed(() => {
   if (!product.value?.pictures) return []
   try {
-    return JSON.parse(product.value.pictures).map(fixImageUrl)
+    return JSON.parse(product.value.pictures).map(buildImageUrl)
   } catch {
     return []
   }
@@ -244,7 +240,7 @@ const selectSku = (sku) => {
   try {
     const pics = JSON.parse(sku.pictures || '[]')
     if (pics.length > 0) {
-      currentImage.value = fixImageUrl(pics[0])
+      currentImage.value = buildImageUrl(pics[0])
     } else if (imageList.value.length > 0) {
       currentImage.value = imageList.value[0]
     }
@@ -261,7 +257,7 @@ const getSkuFirstPic = (sku) => {
   if (!sku?.pictures) return ''
   try {
     const pics = JSON.parse(sku.pictures)
-    return pics.length > 0 ? fixImageUrl(pics[0]) : ''
+    return pics.length > 0 ? buildImageUrl(pics[0]) : ''
   } catch { return '' }
 }
 
