@@ -247,7 +247,7 @@ const fetchData = async () => {
     if (query.name) params.name = query.name
     const res = await getSpuList(params)
     tableData.value = res.data?.list || res.data?.records || []
-    total.value = res.data?.total || 0
+    total.value = Number(res.data?.total) || 0
   } catch (e) {
     console.error('加载商品失败', e)
     ElMessage.error('加载商品失败')
