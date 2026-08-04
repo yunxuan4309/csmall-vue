@@ -188,21 +188,17 @@ const fetchTemplates = async () => {
 
 const loadLeafCategories = async () => {
   try {
-    // 递归加载分类树，取叶子（isParent=0）
-    const loadChildren = async (parentId = 0) => {
-      const res = await getCategoryList(parentId)
-      const list = res.data?.list || res.data?.records || []
-      const result = []
-      for (const item of list) {
-        if (item.isParent === 0) {
-          result.push(item)
-        } else {
-          result.push(...await loadChildren(item.id))
-        }
+    // 分类只设了 2 级（depth 1=父级 2=叶子），直接两次查询避免递归
+    leafCategories.value = []
+    const res1 = await getCategoryList(0)
+    const parents = res1.data?.list || res1.data?.records || []
+    for (const p of parents) {
+      const res2 = await getCategoryList(p.id)
+      const children = res2.data?.list || res2.data?.records || []
+      for (const c of children) {
+        leafCategories.value.push(c)
       }
-      return result
     }
-    leafCategories.value = await loadChildren(0)
   } catch (e) { console.error('加载分类失败', e) }
 }
 
