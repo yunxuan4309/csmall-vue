@@ -12,3 +12,16 @@ export function uploadFile(formData) {
     }
   })
 }
+
+/**
+ * 上传品牌 Logo
+ * @param {FormData} formData - 包含 file + brandNamePinyin 字段
+ * @returns {Promise} 返回 ImageFileVO（含完整 url）
+ */
+export function uploadBrandLogo(formData) {
+  return gatewayHttp.post('/upload/brand-logo', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}
