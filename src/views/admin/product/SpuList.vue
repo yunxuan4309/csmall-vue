@@ -4,7 +4,12 @@
       <template #header>
         <div class="card-header">
           <span>商品管理</span>
-          <el-button type="primary" :icon="Plus" @click="openAdd">新增商品</el-button>
+          <div>
+            <el-button type="primary" :icon="Plus" @click="openAdd">新增商品</el-button>
+            <el-button @click="showIdColumn = !showIdColumn" style="margin-left:8px">
+              {{ showIdColumn ? '隐藏ID' : '显示ID' }}
+            </el-button>
+          </div>
         </div>
       </template>
 
@@ -19,7 +24,7 @@
       </el-form>
 
       <el-table :data="tableData" border stripe v-loading="loading">
-        <el-table-column prop="id" label="ID" width="80" />
+        <el-table-column v-if="showIdColumn" prop="id" label="ID" width="110" />
         <el-table-column label="图片" width="80">
           <template #default="{ row }">
             <el-image
@@ -60,7 +65,8 @@
             <el-button size="small" :type="row.published === 1 ? 'warning' : 'success'" @click="togglePublish(row)">
               {{ row.published === 1 ? '下架' : '上架' }}
             </el-button>
-            <el-button size="small" type="danger" @click="handleDelete(row)">删除</el-button>
+            <el-button v-if="row.deleted === 1" size="small" type="info" disabled>已删除</el-button>
+            <el-button v-else size="small" type="danger" @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -189,6 +195,7 @@ import { uploadFile } from '@/api/upload'
 import { buildImageUrl, toRelativePath } from '@/utils/image'
 
 const router = useRouter()
+const showIdColumn = ref(false)
 const loading = ref(false)
 const saving = ref(false)
 const tableData = ref([])
