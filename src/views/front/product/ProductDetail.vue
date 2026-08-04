@@ -90,13 +90,13 @@
             v-for="sku in skuList"
             :key="sku.id"
             class="sku-item"
-            :class="{ selected: selectedSku?.id === sku.id }"
-            @click="selectSku(sku)"
+            :class="{ selected: selectedSku?.id === sku.id, 'sold-out': isSoldOut(sku) }"
+            @click="!isSoldOut(sku) && selectSku(sku)"
           >
             <div class="sku-info">
               <p class="sku-title">{{ sku.title }}</p>
               <p class="sku-price">¥{{ sku.price }}</p>
-              <p class="sku-stock">库存：{{ sku.stock }}</p>
+              <p class="sku-stock">{{ isSoldOut(sku) ? '已售罄' : `库存：${sku.stock}` }}</p>
             </div>
           </div>
         </div>
@@ -240,6 +240,29 @@ const fetchRelatedProducts = async (spuId) => {
 // 选择SKU
 const selectSku = (sku) => {
   selectedSku.value = sku
+  // 如果 SKU 有专属图片则切换主图，否则保持 SPU 图片
+  try {
+    const pics = JSON.parse(sku.pictures || '[]')
+    if (pics.length > 0) {
+      currentImage.value = fixImageUrl(pics[0])
+    } else if (imageList.value.length > 0) {
+      currentImage.value = imageList.value[0]
+    }
+  } catch {
+    if (imageList.value.length > 0) currentImage.value = imageList.value[0]
+  }
+}
+
+// SKU 库存是否售罄
+const isSoldOut = (sku) => (sku.stock ?? 0) <= 0
+
+// 解析 SKU 的 pictures JSON 取首图
+const getSkuFirstPic = (sku) => {
+  if (!sku?.pictures) return ''
+  try {
+    const pics = JSON.parse(sku.pictures)
+    return pics.length > 0 ? fixImageUrl(pics[0]) : ''
+  } catch { return '' }
 }
 
 // 加入购物车
@@ -260,7 +283,7 @@ const handleAddToCart = async () => {
     await cartStore.addToCart({
       skuId: selectedSku.value.id,
       title: selectedSku.value.title || product.value.title,
-      mainPicture: selectedSku.value.mainPicture || (imageList.value[0] || ''),
+      mainPicture: getSkuFirstPic(selectedSku.value) || (imageList.value[0] || ''),
       price: selectedSku.value.price,
       quantity: 1
     })
@@ -293,7 +316,7 @@ const handleBuyNow = async () => {
     const result = await cartStore.addToCart({
       skuId: selectedSku.value.id,
       title: selectedSku.value.title || product.value.title,
-      mainPicture: selectedSku.value.mainPicture || (imageList.value[0] || ''),
+      mainPicture: getSkuFirstPic(selectedSku.value) || (imageList.value[0] || ''),
       price: selectedSku.value.price,
       quantity: 1
     })
@@ -506,6 +529,17 @@ watch(() => route.params.id, (newId) => {
 .sku-item.selected {
   border-color: #409eff;
   background-color: #ecf5ff;
+}
+
+.sku-item.sold-out {
+  opacity: 0.45;
+  cursor: not-allowed;
+  border-color: #e4e7ed;
+  background-color: #f5f5f5;
+}
+
+.sku-item.sold-out:hover {
+  border-color: #e4e7ed;
 }
 
 .sku-title {
