@@ -227,7 +227,8 @@ const handleDeleteSku = async (row) => {
 const saveSku = async (row) => {
   try {
     await updateSku(row.id, {
-      price: row.price, stock: row.stock, stockThreshold: row.stockThreshold ?? 0, sort: row.sort ?? 0
+      price: row.price, stock: row.stock, stockThreshold: row.stockThreshold ?? 0, sort: row.sort ?? 0,
+      title: row.title, pictures: row.pictures
     })
     ElMessage.success('SKU 已保存')
   } catch (e) { console.error('保存SKU失败', e); ElMessage.error('保存失败') }
