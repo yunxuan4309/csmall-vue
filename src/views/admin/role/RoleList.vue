@@ -4,7 +4,7 @@
       <template #header>
         <div class="card-header">
           <span>角色管理</span>
-          <el-button type="primary" :icon="Plus">新增角色</el-button>
+          <span class="hint">系统管理数据由数据库直接维护</span>
         </div>
       </template>
       
@@ -14,12 +14,6 @@
         <el-table-column label="状态" width="100">
           <template #default>
             <el-tag type="success">启用</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
-          <template #default>
-            <el-button size="small" type="primary" @click="ElMessage.info('编辑功能开发中，敬请期待')">编辑</el-button>
-            <el-button size="small" type="danger" @click="ElMessage.info('删除功能开发中，敬请期待')">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

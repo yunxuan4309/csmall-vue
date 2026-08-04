@@ -4,7 +4,7 @@
       <template #header>
         <div class="card-header">
           <span>权限管理</span>
-          <el-button type="primary" :icon="Plus">新增权限</el-button>
+          <span class="hint">系统管理数据由数据库直接维护</span>
         </div>
       </template>
       
@@ -12,12 +12,6 @@
         <el-table-column prop="name" label="权限名称" />
         <el-table-column prop="value" label="权限编码" />
         <el-table-column prop="description" label="描述" />
-        <el-table-column label="操作" width="200" fixed="right">
-          <template #default>
-            <el-button size="small" type="primary" @click="ElMessage.info('编辑功能开发中，敬请期待')">编辑</el-button>
-            <el-button size="small" type="danger" @click="ElMessage.info('删除功能开发中，敬请期待')">删除</el-button>
-          </template>
-        </el-table-column>
       </el-table>
       <el-pagination style="margin-top:20px;justify-content:flex-end"
         v-model:current-page="page" v-model:page-size="pageSize"

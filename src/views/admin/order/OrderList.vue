@@ -40,7 +40,7 @@
         <el-table-column label="操作" fixed="right">
           <template #default="{ row }">
             <el-button size="small" type="primary" @click="showDetail(row.id)">详情</el-button>
-            <el-button size="small" type="warning" @click="ElMessage.info('发货功能开发中，敬请期待')">发货</el-button>
+            <el-button size="small" type="warning" @click="openStateDialog(row)">状态管理</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -76,15 +76,34 @@
         <el-button @click="detailVisible = false">关闭</el-button>
       </template>
     </el-dialog>
+
+    <!-- 订单状态管理弹窗 -->
+    <el-dialog v-model="stateVisible" title="订单状态管理" width="460px" destroy-on-close>
+      <el-form label-width="100px">
+        <el-form-item label="当前状态">
+          <el-tag :type="getStatusType(stateForm.oldState)">{{ getStatusText(stateForm.oldState) }}</el-tag>
+        </el-form-item>
+        <el-form-item label="目标状态">
+          <el-select v-model="stateForm.newState" style="width:100%">
+            <el-option v-for="t in allowedTransitions" :key="t.value" :label="t.label" :value="t.value" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="stateVisible = false">取消</el-button>
+        <el-button type="primary" :loading="savingState" @click="doChangeState">确认修改</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { Search, Refresh } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { getOrderList, getOrderDetail } from '@/api/order'
-import { ORDER_STATUS_TEXT } from '@/utils/constants'
+import { ORDER_STATUS_TEXT, ORDER_STATUS } from '@/utils/constants'
+import gatewayHttp from '@/api/request'
 
 const tableData = ref([])
 const loading = ref(false)
@@ -141,6 +160,38 @@ const getStatusText = (status) => ORDER_STATUS_TEXT[status] || '未知'
 const getStatusType = (status) => {
   const map = { 0: 'warning', 1: 'info', 2: 'info', 3: 'primary', 4: 'success', 5: 'danger', 6: 'warning', 7: 'info' }
   return map[status] || ''
+}
+
+// 订单状态管理
+const stateVisible = ref(false)
+const savingState = ref(false)
+const stateForm = reactive({ oldState: 0, newState: 0, orderId: null })
+const transitionMap = {
+  0: [{ value: 3, label: '已支付' }, { value: 1, label: '已关闭' }, { value: 2, label: '已取消' }],
+  3: [{ value: 4, label: '已签收' }, { value: 5, label: '已拒收' }, { value: 6, label: '退款中' }],
+  4: [{ value: 5, label: '已拒收' }, { value: 6, label: '退款中' }],
+  6: [{ value: 7, label: '已退款' }],
+  1: [{ value: 0, label: '重新激活（未支付）' }, { value: 2, label: '已取消' }],
+  2: [{ value: 0, label: '重新激活（未支付）' }],
+}
+const allowedTransitions = computed(() => transitionMap[stateForm.oldState] || [])
+
+const openStateDialog = (row) => {
+  stateForm.oldState = row.status
+  stateForm.newState = (transitionMap[row.status] || [{}])[0]?.value ?? 0
+  stateForm.orderId = row.id
+  stateVisible.value = true
+}
+
+const doChangeState = async () => {
+  if (!stateForm.newState) { ElMessage.warning('请选择目标状态'); return }
+  savingState.value = true
+  try {
+    await gatewayHttp.post('/oms/order/update/state', { id: stateForm.orderId, state: stateForm.newState })
+    ElMessage.success('状态修改成功')
+    stateVisible.value = false
+    fetchData()
+  } catch (e) { ElMessage.error(e?.response?.data?.message || '修改失败') } finally { savingState.value = false }
 }
 
 onMounted(() => {
