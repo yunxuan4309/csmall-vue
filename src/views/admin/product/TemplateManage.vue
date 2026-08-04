@@ -4,12 +4,17 @@
       <template #header>
         <div class="card-header">
           <span>属性模板管理</span>
-          <el-button type="primary" :icon="Plus" @click="openAddTemplate">新增模板</el-button>
+          <div>
+            <el-button type="primary" :icon="Plus" @click="openAddTemplate">新增模板</el-button>
+            <el-button @click="showIdColumn = !showIdColumn" style="margin-left:8px">
+              {{ showIdColumn ? '隐藏ID' : '显示ID' }}
+            </el-button>
+          </div>
         </div>
       </template>
 
       <el-table :data="templates" border stripe v-loading="loading">
-        <el-table-column prop="id" label="ID" width="110" />
+        <el-table-column v-if="showIdColumn" prop="id" label="ID" width="110" />
         <el-table-column prop="name" label="模板名称" />
         <el-table-column prop="pinyin" label="拼音" />
         <el-table-column prop="keywords" label="关键词" show-overflow-tooltip />
@@ -153,6 +158,7 @@ import {
 import { getCategoryList } from '@/api/category'
 
 const loading = ref(false)
+const showIdColumn = ref(false)
 const templates = ref([])
 const total = ref(0)
 const page = ref(1)

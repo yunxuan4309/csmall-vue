@@ -4,7 +4,12 @@
       <template #header>
         <div class="card-header">
           <span>分类管理</span>
-          <el-button type="primary" :icon="Plus" @click="ElMessage.info('新增分类功能开发中，敬请期待')">新增分类</el-button>
+          <div>
+            <el-button type="primary" :icon="Plus" @click="ElMessage.info('新增分类功能开发中，敬请期待')">新增分类</el-button>
+            <el-button @click="showIdColumn = !showIdColumn" style="margin-left:8px">
+              {{ showIdColumn ? '隐藏ID' : '显示ID' }}
+            </el-button>
+          </div>
         </div>
       </template>
 
@@ -15,7 +20,7 @@
         v-loading="loading"
         default-expand-all
       >
-        <el-table-column prop="id" label="ID" width="80" />
+        <el-table-column v-if="showIdColumn" prop="id" label="ID" width="80" />
         <el-table-column prop="name" label="分类名称" />
         <el-table-column prop="depth" label="层级" width="80" />
         <el-table-column prop="sort" label="排序" width="80" />
@@ -49,6 +54,7 @@ import { ElMessage } from 'element-plus'
 import gatewayHttp from '@/api/request'
 
 const loading = ref(false)
+const showIdColumn = ref(false)
 const categoryTree = ref([])
 
 // 递归加载子分类，构建树形结构

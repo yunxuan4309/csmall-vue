@@ -4,7 +4,12 @@
       <template #header>
         <div class="card-header">
           <span>品牌管理</span>
-          <el-button type="primary" :icon="Plus" @click="ElMessage.info('新增品牌功能开发中，敬请期待')">新增品牌</el-button>
+          <div>
+            <el-button type="primary" :icon="Plus" @click="ElMessage.info('新增品牌功能开发中，敬请期待')">新增品牌</el-button>
+            <el-button @click="showIdColumn = !showIdColumn" style="margin-left:8px">
+              {{ showIdColumn ? '隐藏ID' : '显示ID' }}
+            </el-button>
+          </div>
         </div>
       </template>
 
@@ -19,7 +24,7 @@
       </el-form>
 
       <el-table :data="tableData" border stripe v-loading="loading">
-        <el-table-column prop="id" label="ID" width="80" />
+        <el-table-column v-if="showIdColumn" prop="id" label="ID" width="80" />
         <el-table-column prop="name" label="品牌名称" />
         <el-table-column label="品牌Logo" width="100">
           <template #default="{ row }">
@@ -57,6 +62,7 @@ import { ElMessage } from 'element-plus'
 import gatewayHttp from '@/api/request'
 
 const loading = ref(false)
+const showIdColumn = ref(false)
 const tableData = ref([])
 const total = ref(0)
 const page = ref(1)
